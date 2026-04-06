@@ -395,7 +395,7 @@ function build(h, rows) {
     const arr = (r[I.arr]||'').toUpperCase().trim();
     const est = (r[I.estado]||'').toUpperCase().trim();
     const canon = pn(r[I.canon]);
-    const esDisponible = arr === 'DISPONIBLE' || est === 'DISPONIBLE' || est === 'X';
+    const esDisponible = arr === 'DISPONIBLE' || est === 'DISPONIBLE';
     if (esDisponible) disponibles++; else activos++;
     const efct = pn(r[I.efct]);
     if (!esDisponible && canon === 0 && efct === 0) sinCanon++;
@@ -567,8 +567,7 @@ function build(h, rows) {
     let pagados = 0, pendientes = 0, totalMes = 0;
     const activos = data.filter(r => {
       const arr = (r[I.arr]||'').toUpperCase().trim();
-      const est = (r[I.estado]||'').toUpperCase().trim();
-      return arr !== 'DISPONIBLE' && arr !== '' && est !== 'X' && est !== 'DISPONIBLE';
+      return arr !== 'DISPONIBLE' && arr !== '';
     });
     activos.forEach(r => {
       const raw = (r[mc.idx]||'').trim();
@@ -629,7 +628,7 @@ function build(h, rows) {
   document.getElementById('search').addEventListener('input', e => renderDir(e.target.value));
 
   // ===== VACANTES =====
-  const vacantes = data.filter(r => (r[I.arr]||'').toUpperCase().trim() === 'DISPONIBLE' || (r[I.estado]||'').toUpperCase().trim() === 'DISPONIBLE' || (r[I.estado]||'').toUpperCase().trim() === 'X');
+  const vacantes = data.filter(r => (r[I.arr]||'').toUpperCase().trim() === 'DISPONIBLE' || (r[I.estado]||'').toUpperCase().trim() === 'DISPONIBLE');
   let vhtml = '<table><thead><tr><th>COD</th><th>Direccion</th><th>Ciudad</th><th>Establecimiento</th><th>Prop</th></tr></thead><tbody>';
   if (vacantes.length === 0) {
     vhtml += '<tr><td colspan="5" style="text-align:center;color:#64748b">No hay locales vacantes</td></tr>';
