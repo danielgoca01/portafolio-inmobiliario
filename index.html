@@ -395,7 +395,7 @@ function build(h, rows) {
     const arr = (r[I.arr]||'').toUpperCase().trim();
     const est = (r[I.estado]||'').toUpperCase().trim();
     const canon = pn(r[I.canon]);
-    const esDisponible = arr === 'DISPONIBLE' || est === 'DISPONIBLE';
+    const esDisponible = arr === 'DISPONIBLE' || est === 'DISPONIBLE' || est === 'X';
     if (esDisponible) disponibles++; else activos++;
     const efct = pn(r[I.efct]);
     if (!esDisponible && canon === 0 && efct === 0) sinCanon++;
@@ -567,11 +567,13 @@ function build(h, rows) {
     let pagados = 0, pendientes = 0, totalMes = 0;
     const activos = data.filter(r => {
       const arr = (r[I.arr]||'').toUpperCase().trim();
-      return arr !== 'DISPONIBLE' && arr !== '';
+      const est = (r[I.estado]||'').toUpperCase().trim();
+      return arr !== 'DISPONIBLE' && arr !== '' && est !== 'X' && est !== 'DISPONIBLE';
     });
     activos.forEach(r => {
-      const val = pn(r[mc.idx]);
-      if (val > 0) { pagados++; totalMes += val; } else pendientes++;
+      const raw = (r[mc.idx]||'').trim();
+      const val = pn(raw);
+      if (raw === '' || val === 0) { pagados++; } else { pendientes++; totalMes += val; }
     });
 
     // Destruir chart anterior y recrear
@@ -586,7 +588,7 @@ function build(h, rows) {
     document.getElementById('pagos-resumen').innerHTML = `
       <div style="margin-bottom:16px"><div style="font-size:11px;color:#94a3b8">PAGADOS</div><div style="font-size:28px;font-weight:800;color:#4ade80">${pagados}</div><div style="font-size:11px;color:#64748b">${pct}% de ${activos.length} activos</div></div>
       <div style="margin-bottom:16px"><div style="font-size:11px;color:#94a3b8">PENDIENTES</div><div style="font-size:28px;font-weight:800;color:#f87171">${pendientes}</div></div>
-      <div><div style="font-size:11px;color:#94a3b8">RECAUDADO ${mc.label.toUpperCase()}</div><div style="font-size:18px;font-weight:700;color:#4ade80">${fms(totalMes)}</div><div style="font-size:11px;color:#64748b">${fm(totalMes)}</div></div>
+      <div><div style="font-size:11px;color:#94a3b8">POR COBRAR ${mc.label.toUpperCase()}</div><div style="font-size:18px;font-weight:700;color:#f87171">${fms(totalMes)}</div><div style="font-size:11px;color:#64748b">${fm(totalMes)}</div></div>
     `;
   }
 
@@ -627,7 +629,7 @@ function build(h, rows) {
   document.getElementById('search').addEventListener('input', e => renderDir(e.target.value));
 
   // ===== VACANTES =====
-  const vacantes = data.filter(r => (r[I.arr]||'').toUpperCase().trim() === 'DISPONIBLE' || (r[I.estado]||'').toUpperCase().trim() === 'DISPONIBLE');
+  const vacantes = data.filter(r => (r[I.arr]||'').toUpperCase().trim() === 'DISPONIBLE' || (r[I.estado]||'').toUpperCase().trim() === 'DISPONIBLE' || (r[I.estado]||'').toUpperCase().trim() === 'X');
   let vhtml = '<table><thead><tr><th>COD</th><th>Direccion</th><th>Ciudad</th><th>Establecimiento</th><th>Prop</th></tr></thead><tbody>';
   if (vacantes.length === 0) {
     vhtml += '<tr><td colspan="5" style="text-align:center;color:#64748b">No hay locales vacantes</td></tr>';
