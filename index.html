@@ -6,6 +6,23 @@
 <title>Portafolio Inmobiliario</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<script>
+(function(){
+  const k = 'pi_auth';
+  if(sessionStorage.getItem(k)==='1') return;
+  const h = '32625be384ed05129315617a65f0b070e7b35a4257bdd11e0d98185c6f0cecfe';
+  function sha256(s){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)).then(b=>Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join(''));}
+  function ask(){
+    const p=prompt('Ingrese la clave de acceso:');
+    if(p===null){document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0a0f1a;color:#ef4444;font-family:Inter,sans-serif;font-size:20px">Acceso denegado</div>';return;}
+    sha256(p).then(function(d){
+      if(d===h){sessionStorage.setItem(k,'1');}
+      else{alert('Clave incorrecta');ask();}
+    });
+  }
+  ask();
+})();
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;background:#0a0f1a;color:#e2e8f0;min-height:100vh}
