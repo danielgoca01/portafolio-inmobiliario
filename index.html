@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portafolio Inmobiliario</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0f1a;color:#e2e8f0;min-height:100vh}
+.header{background:linear-gradient(135deg,#0f1a2e,#1a2744);padding:24px;border-bottom:3px solid #3b82f6}
+.header h1{font-size:24px;font-weight:800;color:#fff}
+.header .sub{color:#64748b;font-size:12px;margin-top:4px}
+.container{max-width:1200px;margin:0 auto;padding:16px}
+.section{margin-bottom:16px}
+.section-title{font-size:16px;font-weight:700;margin-bottom:12px;color:#f1f5f9}
+
+/* KPI Cards */
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.kpi{background:rgba(30,41,59,0.8);backdrop-filter:blur(10px);border-radius:14px;padding:18px;border:1px solid rgba(255,255,255,0.08);position:relative;overflow:hidden;transition:transform 0.2s}
+.kpi:hover{transform:scale(1.02)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi.c1::before{background:#3b82f6}.kpi.c2::before{background:#22c55e}.kpi.c3::before{background:#a855f7}
+.kpi.c4::before{background:#f97316}.kpi.c5::before{background:#ef4444}
+.kpi .icon{font-size:20px;margin-bottom:4px}
+.kpi .label{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.kpi .val{font-size:22px;font-weight:800;margin-top:4px}
+.kpi.c1 .val{color:#60a5fa}.kpi.c2 .val{color:#4ade80}.kpi.c3 .val{color:#c084fc}
+.kpi.c4 .val{color:#fb923c}.kpi.c5 .val{color:#f87171}
+.kpi .det{font-size:11px;color:#64748b;margin-top:2px}
+
+/* Occupancy */
+.occ-bar{width:100%;height:28px;background:#1e293b;border-radius:14px;overflow:hidden;margin:8px 0}
+.occ-fill{height:100%;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;transition:width 1.5s ease}
+
+/* Charts */
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chart-card{background:rgba(30,41,59,0.7);backdrop-filter:blur(10px);border-radius:14px;padding:16px;border:1px solid rgba(255,255,255,0.06)}
+.chart-card h3{font-size:14px;font-weight:700;margin-bottom:10px}
+.chart-wrap{position:relative;height:280px}
+
+/* Tables */
+table{width:100%;border-collapse:collapse}
+th{background:rgba(51,65,85,0.6);color:#94a3b8;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;padding:10px 8px;text-align:left;font-weight:600}
+td{padding:10px 8px;border-bottom:1px solid rgba(30,41,59,0.8);font-size:12px}
+tr:hover td{background:rgba(51,65,85,0.3)}
+.badge{padding:3px 8px;border-radius:12px;font-size:10px;font-weight:600}
+.badge-green{background:rgba(34,197,94,0.2);color:#4ade80}
+.badge-red{background:rgba(239,68,68,0.2);color:#f87171}
+.badge-yellow{background:rgba(234,179,8,0.2);color:#fcd34d}
+
+/* Search */
+.search-box{width:100%;padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(30,41,59,0.8);color:#fff;font-size:14px;font-family:'Inter';outline:none;margin-bottom:12px}
+.search-box:focus{border-color:#3b82f6}
+.search-count{font-size:11px;color:#64748b;margin-bottom:8px}
+
+/* WhatsApp & Email links */
+a.wa{color:#25d366;text-decoration:none;font-weight:600;font-size:11px}
+a.wa:hover{text-decoration:underline}
+a.em{color:#60a5fa;text-decoration:none;font-size:11px;word-break:break-all}
+a.em:hover{text-decoration:underline}
+
+/* Full width */
+.full{grid-column:1/-1}
+
+/* Footer */
+.footer{text-align:center;padding:20px;color:#475569;font-size:11px;margin-top:10px}
+.section{opacity:0;transform:translateY(20px);animation:fadeUp 0.6s ease forwards}
+.section:nth-child(1){animation-delay:0.1s}
+.section:nth-child(2){animation-delay:0.2s}
+.section:nth-child(3){animation-delay:0.3s}
+.section:nth-child(4){animation-delay:0.4s}
+.section:nth-child(5){animation-delay:0.5s}
+.section:nth-child(6){animation-delay:0.6s}
+.section:nth-child(7){animation-delay:0.7s}
+.section:nth-child(8){animation-delay:0.8s}
+.section:nth-child(9){animation-delay:0.9s}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+
+/* Tabs */
+.tabs{display:flex;gap:0;background:rgba(15,23,42,0.9);border-bottom:2px solid #1e293b;position:sticky;top:0;z-index:100;padding:0 16px}
+.tab{padding:14px 20px;font-size:13px;font-weight:600;color:#64748b;cursor:pointer;border-bottom:3px solid transparent;transition:all 0.2s;white-space:nowrap}
+.tab:hover{color:#94a3b8}
+.tab.active{color:#fff;border-bottom-color:#3b82f6}
+.tab.active.t-efct{border-bottom-color:#4ade80}
+.tab.active.t-total{border-bottom-color:#a855f7}
+.tab-page{display:none}
+.tab-page.active{display:block}
+
+/* Loading */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh}
+.loading .spinner{width:40px;height:40px;border:4px solid #1e293b;border-top-color:#3b82f6;border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading p{margin-top:16px;color:#64748b}
+.error{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:40vh;color:#f87171}
+.error button{margin-top:16px;padding:10px 24px;background:#3b82f6;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'Inter'}
+
+/* Mobile */
+@media(max-width:768px){
+  .kpis{grid-template-columns:1fr 1fr}
+  .charts{grid-template-columns:1fr}
+  .kpi .val{font-size:18px}
+  .kpi .label{font-size:9px}
+  .kpi{padding:14px}
+  .header{padding:16px}
+  .header h1{font-size:20px}
+  .chart-wrap{height:260px}
+  .tabs{padding:0 8px}
+  .tab{padding:12px 14px;font-size:12px}
+  td,th{padding:8px 6px;font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <h1>Portafolio Inmobiliario</h1>
+      <div class="sub"><span id="timestamp"></span></div>
+    </div>
+    <button onclick="location.reload()" style="padding:8px 18px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-family:'Inter';font-weight:600;white-space:nowrap">↻ Actualizar</button>
+  </div>
+</div>
+
+<div class="container">
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Cargando datos del portafolio...</p>
+  </div>
+  <div id="error" class="error">
+    <p id="error-msg">Error cargando datos</p>
+    <button onclick="location.reload()">Reintentar</button>
+  </div>
+  <div id="content" style="display:none">
+
+    <!-- TABS BAR -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('general',this)">📊 General</div>
+      <div class="tab t-efct" onclick="switchTab('efectivo',this)">💸 Efectivo</div>
+      <div class="tab t-total" onclick="switchTab('total',this)">🏦 Total</div>
+    </div>
+
+    <!-- TAB: GENERAL -->
+    <div class="tab-page active" id="page-general">
+
+    <!-- KPIs -->
+    <div class="section">
+      <div class="kpis">
+        <div class="kpi c1"><div class="icon">🏢</div><div class="label">Total Locales</div><div class="val" id="k-total">0</div><div class="det" id="k-total-det"></div></div>
+        <div class="kpi c2"><div class="icon">💰</div><div class="label">Canon Mensual</div><div class="val" id="k-canon">$0</div><div class="det" id="k-canon-det"></div></div>
+        <div class="kpi c3"><div class="icon">💵</div><div class="label">Total Neto</div><div class="val" id="k-neto">$0</div><div class="det" id="k-neto-det"></div></div>
+        <div class="kpi c2"><div class="icon">💸</div><div class="label">Efectivo Mensual</div><div class="val" id="k-efct2" style="color:#4ade80">$0</div><div class="det" id="k-efct-det2"></div></div>
+        <div class="kpi c1"><div class="icon">🏦</div><div class="label">Total General</div><div class="val" id="k-totalgen" style="color:#60a5fa">$0</div><div class="det" id="k-totalgen-det"></div></div>
+        <div class="kpi c4"><div class="icon">🔴</div><div class="label">Disponibles</div><div class="val" id="k-disp">0</div><div class="det">Sin arrendatario</div></div>
+        <div class="kpi c5"><div class="icon">⚠️</div><div class="label">Sin Canon</div><div class="val" id="k-sincanon">0</div><div class="det">Arrendatario pero $0</div></div>
+      </div>
+    </div>
+
+    <!-- Occupancy -->
+    <div class="section">
+      <div class="chart-card">
+        <h3>Tasa de Ocupacion</h3>
+        <div class="occ-bar"><div class="occ-fill" id="occ-fill">0%</div></div>
+        <div style="font-size:12px;color:#94a3b8" id="occ-det"></div>
+      </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="section">
+      <div class="charts">
+        <div class="chart-card"><h3>Ingresos por Propietario</h3><div class="chart-wrap"><canvas id="ch-owner"></canvas></div></div>
+        <div class="chart-card"><h3>Locales por Ciudad</h3><div class="chart-wrap"><canvas id="ch-city-count"></canvas></div></div>
+      </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="section">
+      <div class="charts">
+        <div class="chart-card"><h3>Ingresos por Ciudad</h3><div class="chart-wrap"><canvas id="ch-city-income"></canvas></div></div>
+        <div class="chart-card"><h3>Tipos de Incremento</h3><div class="chart-wrap"><canvas id="ch-incr"></canvas></div></div>
+      </div>
+    </div>
+
+    <!-- Top 10 -->
+    <div class="section">
+      <div class="chart-card">
+        <h3>Top 10 Arrendatarios por Canon</h3>
+        <div style="overflow-x:auto;max-height:400px;overflow-y:auto" id="top10"></div>
+      </div>
+    </div>
+
+    <!-- Pagos ENE 2026 -->
+    <div class="section">
+      <div class="charts">
+        <div class="chart-card"><h3>Estado de Pagos - Enero 2026</h3><div class="chart-wrap" style="height:200px"><canvas id="ch-pagos"></canvas></div></div>
+        <div class="chart-card"><h3>Resumen Pagos</h3><div id="pagos-resumen" style="padding:16px"></div></div>
+      </div>
+    </div>
+
+    <!-- Search + Directory -->
+    <div class="section">
+      <div class="chart-card">
+        <h3>Directorio de Arrendatarios</h3>
+        <input type="text" class="search-box" id="search" placeholder="Buscar arrendatario, ciudad, establecimiento...">
+        <div class="search-count" id="search-count"></div>
+        <div style="overflow-x:auto;max-height:400px;overflow-y:auto" id="directory"></div>
+      </div>
+    </div>
+
+    <!-- Vacantes -->
+    <div class="section">
+      <div class="chart-card">
+        <h3 style="color:#f87171">Locales Disponibles (Vacantes)</h3>
+        <div style="overflow-x:auto;max-height:350px;overflow-y:auto" id="vacantes"></div>
+      </div>
+    </div>
+
+    <!-- Resumen Propietarios -->
+    <div class="section">
+      <div class="chart-card">
+        <h3>Resumen por Propietario</h3>
+        <div style="overflow-x:auto" id="owner-table"></div>
+      </div>
+    </div>
+
+    </div><!-- end page-general -->
+
+    <!-- TAB: EFECTIVO -->
+    <div class="tab-page" id="page-efectivo">
+      <div class="section">
+        <div class="kpis">
+          <div class="kpi c2"><div class="icon">💸</div><div class="label">Efectivo Total</div><div class="val" style="color:#4ade80" id="e-total">$0</div><div class="det" id="e-total-det"></div></div>
+          <div class="kpi c2"><div class="icon">👥</div><div class="label">Locales con Efectivo</div><div class="val" style="color:#4ade80" id="e-count">0</div><div class="det">Que reciben pago en efectivo</div></div>
+          <div class="kpi c2"><div class="icon">📊</div><div class="label">Promedio por Local</div><div class="val" style="color:#4ade80" id="e-avg">$0</div><div class="det" id="e-avg-det"></div></div>
+        </div>
+      </div>
+      <div class="section"><div class="charts">
+        <div class="chart-card"><h3 style="color:#4ade80">Efectivo por Propietario</h3><div class="chart-wrap"><canvas id="ch-efct-owner"></canvas></div></div>
+        <div class="chart-card"><h3 style="color:#4ade80">Efectivo por Ciudad</h3><div class="chart-wrap"><canvas id="ch-efct-city"></canvas></div></div>
+      </div></div>
+      <div class="section"><div class="chart-card">
+        <h3 style="color:#4ade80">Detalle Efectivo por Arrendatario</h3>
+        <div style="overflow-x:auto;max-height:400px;overflow-y:auto" id="efct-table"></div>
+      </div></div>
+    </div><!-- end page-efectivo -->
+
+    <!-- TAB: TOTAL -->
+    <div class="tab-page" id="page-total">
+      <div class="section">
+        <div class="kpis">
+          <div class="kpi c3"><div class="icon">🏦</div><div class="label">Total General</div><div class="val" style="color:#c084fc" id="t-total">$0</div><div class="det" id="t-total-det"></div></div>
+          <div class="kpi c3"><div class="icon">💵</div><div class="label">Neto (Declarado)</div><div class="val" style="color:#c084fc" id="t-neto">$0</div><div class="det" id="t-neto-det"></div></div>
+          <div class="kpi c3"><div class="icon">💸</div><div class="label">Efectivo</div><div class="val" style="color:#4ade80" id="t-efct">$0</div><div class="det" id="t-efct-det"></div></div>
+        </div>
+      </div>
+      <div class="section"><div class="charts">
+        <div class="chart-card"><h3 style="color:#c084fc">Total General por Propietario</h3><div class="chart-wrap"><canvas id="ch-total-owner"></canvas></div></div>
+        <div class="chart-card"><h3 style="color:#c084fc">Total General por Ciudad</h3><div class="chart-wrap"><canvas id="ch-total-city"></canvas></div></div>
+      </div></div>
+      <div class="section"><div class="chart-card">
+        <h3 style="color:#c084fc">Comparativo Neto vs Efectivo por Propietario</h3>
+        <div class="chart-wrap" style="height:320px"><canvas id="ch-total-compare"></canvas></div>
+      </div></div>
+    </div><!-- end page-total -->
+
+  </div>
+</div>
+
+<div class="footer" id="footer">Datos actualizados desde Google Sheets</div>
+
+<script>
+const SHEET_ID = '11yTp_iBTs1dwi0uwnrfbeFIJKHHbDkMJN2S8O5y7Hhw';
+const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1071232081`;
+const COLORS = ['#3b82f6','#22c55e','#f97316','#ef4444','#a855f7','#ec4899','#14b8a6','#f59e0b','#6366f1','#84cc16','#06b6d4','#e11d48','#8b5cf6','#10b981'];
+
+function parseCSV(text) {
+  const result = [];
+  let row = [], field = '', inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i], n = text[i+1];
+    if (inQ) {
+      if (c === '"' && n === '"') { field += '"'; i++; }
+      else if (c === '"') inQ = false;
+      else field += c;
+    } else {
+      if (c === '"') inQ = true;
+      else if (c === ',') { row.push(field.trim()); field = ''; }
+      else if (c === '\n' || (c === '\r' && n === '\n')) {
+        row.push(field.trim()); field = '';
+        if (row.length > 1) result.push(row);
+        row = [];
+        if (c === '\r') i++;
+      } else field += c;
+    }
+  }
+  row.push(field.trim());
+  if (row.length > 1) result.push(row);
+  return result; // returns array of arrays, first row = headers
+}
+
+function pn(v) { // parseNumber
+  if (!v || v === '') return 0;
+  return parseFloat(String(v).replace(/\./g,'').replace(/,/g,'.')) || 0;
+}
+
+function fm(n) { // formatMoney
+  if (!n || isNaN(n)) return '$0';
+  return '$' + Math.round(n).toLocaleString('es-CO');
+}
+
+function fms(n) { // formatMoney short
+  if (!n || isNaN(n)) return '$0';
+  if (n >= 1000000) return '$' + Math.round(n/1000000).toLocaleString('es-CO') + ' Millones';
+  if (n >= 1000) return '$' + Math.round(n/1000).toLocaleString('es-CO') + ' Mil';
+  return fm(n);
+}
+
+function ci(headers, name) { // columnIndex
+  const clean = name.toUpperCase().trim();
+  for (let i = 0; i < headers.length; i++) {
+    if (headers[i].toUpperCase().trim() === clean) return i;
+  }
+  for (let i = 0; i < headers.length; i++) {
+    if (headers[i].toUpperCase().trim().includes(clean)) return i;
+  }
+  return -1;
+}
+function cif(h, ...names) { // columnIndex with fallback
+  for (const n of names) { const idx = ci(h, n); if (idx !== -1) return idx; }
+  return -1;
+}
+function ciLast(h, name) { // find LAST column with this name
+  const clean = name.toUpperCase().trim();
+  let last = -1;
+  for (let i = 0; i < h.length; i++) { if (h[i].toUpperCase().trim() === clean) last = i; }
+  return last;
+}
+
+async function load() {
+  try {
+    const res = await fetch(CSV_URL);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    const all = parseCSV(text);
+    if (all.length < 2) throw new Error('Sin datos');
+
+    const headers = all[0];
+    const rows = all.slice(1);
+    build(headers, rows);
+
+  } catch(e) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display = 'flex';
+    document.getElementById('error-msg').textContent = 'Error: ' + e.message;
+  }
+}
+
+function build(h, rows) {
+  // Column indices
+  const I = {
+    cod: ci(h,'COD'), dir: cif(h,'DIR LOCAL','DIRECCION'), ciudad: ci(h,'CIUDAD'),
+    estab: cif(h,'ESTABLE','ESTABLECIMIENTO'), prop: ci(h,'PROP'), local: cif(h,'PL','# LOCAL'),
+    nombre: ci(h,'NOMBRE COMERCIAL'), arr: ci(h,'ARRENDATARIO'), nit: ci(h,'NIT/CC'),
+    correo: ci(h,'CORREO'), tel: cif(h,'TELEF','TELEFONO'), inicio: cif(h,'INICIO','INICIO CONTRATO'),
+    incr: cif(h,'INCR','TIPO INCR'), canon: ci(h,'CANON'), neto: ciLast(h,'TOTAL'),
+    pagar: cif(h,'TOT PAG','TOT PAGAR'), estado: cif(h,'ESTADO','X'), ene26: cif(h,'ENERO','ENE 2026'),
+    efct: ci(h,'EFCT')
+  };
+
+  // Filter out subtotal/empty rows
+  const data = rows.filter(r => r[I.cod] && r[I.cod] !== '');
+
+  // KPIs
+  let activos=0, disponibles=0, sinCanon=0, totalCanon=0, totalNeto=0, totalEfct=0;
+  data.forEach(r => {
+    const arr = (r[I.arr]||'').toUpperCase().trim();
+    const est = (r[I.estado]||'').toUpperCase().trim();
+    const canon = pn(r[I.canon]);
+    const esDisponible = arr === 'DISPONIBLE' || est === 'DISPONIBLE';
+    if (esDisponible) disponibles++; else activos++;
+    const efct = pn(r[I.efct]);
+    if (!esDisponible && canon === 0 && efct === 0) sinCanon++;
+    totalCanon += canon;
+    totalNeto += pn(r[I.neto]);
+    totalEfct += efct;
+  });
+
+  // Animated counter function
+  function animateNum(el, target, duration) {
+    const start = 0;
+    const startTime = performance.now();
+    function update(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease out cubic
+      const current = Math.round(start + (target - start) * eased);
+      el.textContent = current.toLocaleString('es-CO');
+      if (progress < 1) requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  }
+
+  animateNum(document.getElementById('k-total'), data.length, 1200);
+  document.getElementById('k-total-det').textContent = activos+' activos · '+disponibles+' disponibles';
+  document.getElementById('k-canon').textContent = fms(totalCanon);
+  document.getElementById('k-canon-det').textContent = fm(totalCanon);
+  document.getElementById('k-neto').textContent = fms(totalNeto);
+  document.getElementById('k-neto-det').textContent = fm(totalNeto);
+  animateNum(document.getElementById('k-disp'), disponibles, 1000);
+  animateNum(document.getElementById('k-sincanon'), sinCanon, 1000);
+  document.getElementById('k-efct2').textContent = fms(totalEfct);
+  document.getElementById('k-efct-det2').textContent = fm(totalEfct);
+  document.getElementById('k-totalgen').textContent = fms(totalNeto + totalEfct);
+  document.getElementById('k-totalgen-det').textContent = 'Neto + Efectivo = ' + fm(totalNeto + totalEfct);
+
+  // Occupancy
+  const occ = data.length > 0 ? (activos / data.length * 100) : 0;
+  const occColor = occ >= 85 ? '#22c55e' : occ >= 70 ? '#f97316' : '#ef4444';
+  const fill = document.getElementById('occ-fill');
+  fill.style.background = occColor;
+  setTimeout(() => { fill.style.width = occ.toFixed(1)+'%'; fill.textContent = occ.toFixed(1)+'%'; }, 100);
+  document.getElementById('occ-det').textContent = activos+' locales arrendados de '+data.length+' totales';
+
+  // Group by owner
+  const byOwner = {};
+  data.forEach(r => {
+    const p = (r[I.prop]||'SIN').trim();
+    if (!byOwner[p]) byOwner[p] = {n:0, canon:0};
+    byOwner[p].n++;
+    byOwner[p].canon += pn(r[I.canon]);
+  });
+  const ownerSorted = Object.entries(byOwner).sort((a,b) => b[1].canon - a[1].canon);
+
+  // Group by city (normalize spaces)
+  const byCity = {};
+  data.forEach(r => {
+    const c = (r[I.ciudad]||'').trim().toUpperCase();
+    if (!c) return;
+    if (!byCity[c]) byCity[c] = {n:0, canon:0};
+    byCity[c].n++;
+    byCity[c].canon += pn(r[I.canon]);
+  });
+  const citySorted = Object.entries(byCity).sort((a,b) => b[1].n - a[1].n);
+  const cityByIncome = Object.entries(byCity).sort((a,b) => b[1].canon - a[1].canon);
+
+  // Group by increment
+  const byIncr = {};
+  data.forEach(r => {
+    const inc = (r[I.incr]||'').trim();
+    if (!inc || inc === 'X') return;
+    if (!byIncr[inc]) byIncr[inc] = 0;
+    byIncr[inc]++;
+  });
+
+  // ===== CHARTS =====
+  // Owner doughnut
+  new Chart(document.getElementById('ch-owner'), {
+    type:'doughnut',
+    data:{labels:ownerSorted.map(e=>e[0]),datasets:[{data:ownerSorted.map(e=>Math.round(e[1].canon)),backgroundColor:COLORS,borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:11},padding:10}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+fm(ctx.raw)}}}}
+  });
+
+  // City count bar
+  new Chart(document.getElementById('ch-city-count'), {
+    type:'bar',
+    data:{labels:citySorted.map(e=>e[0]),datasets:[{data:citySorted.map(e=>e[1].n),backgroundColor:COLORS.slice(0,citySorted.length),borderRadius:4,barThickness:14}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#94a3b8'}},y:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:9}}}}}
+  });
+
+  // City income bar
+  new Chart(document.getElementById('ch-city-income'), {
+    type:'bar',
+    data:{labels:cityByIncome.map(e=>e[0]),datasets:[{data:cityByIncome.map(e=>Math.round(e[1].canon)),backgroundColor:COLORS.slice(0,cityByIncome.length),borderRadius:4,barThickness:14}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fm(ctx.raw)}}},scales:{x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#94a3b8',callback:v=>fms(v)}},y:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:9}}}}}
+  });
+
+  // Increment doughnut
+  const incrSorted = Object.entries(byIncr).sort((a,b) => b[1] - a[1]);
+  new Chart(document.getElementById('ch-incr'), {
+    type:'doughnut',
+    data:{labels:incrSorted.map(e=>e[0]),datasets:[{data:incrSorted.map(e=>e[1]),backgroundColor:COLORS,borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:9},padding:8}}}}
+  });
+
+  // ===== TOP 10 =====
+  const top10 = data.filter(r=>pn(r[I.canon])>0).sort((a,b)=>pn(b[I.canon])-pn(a[I.canon])).slice(0,10);
+  let t10 = '<table><thead><tr><th>#</th><th>Arrendatario</th><th>Ciudad</th><th>Canon</th><th>%</th></tr></thead><tbody>';
+  top10.forEach((r,i) => {
+    const canon = pn(r[I.canon]);
+    t10 += `<tr><td>${i+1}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${fm(canon)}</td><td>${(canon/totalCanon*100).toFixed(1)}%</td></tr>`;
+  });
+  t10 += '</tbody></table>';
+  document.getElementById('top10').innerHTML = t10;
+
+  // ===== PAGOS ENE 2026 =====
+  let pagados=0, pendientes=0, totalEne=0;
+  data.forEach(r => {
+    const ene = pn(r[I.ene26]);
+    if (ene > 0) { pagados++; totalEne += ene; } else pendientes++;
+  });
+
+  new Chart(document.getElementById('ch-pagos'), {
+    type:'doughnut',
+    data:{labels:['Pagados','Pendientes'],datasets:[{data:[pagados,pendientes],backgroundColor:['#22c55e','#ef4444'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8'}}}}
+  });
+
+  document.getElementById('pagos-resumen').innerHTML = `
+    <div style="margin-bottom:16px"><div style="font-size:11px;color:#94a3b8">PAGADOS</div><div style="font-size:28px;font-weight:800;color:#4ade80">${pagados}</div></div>
+    <div style="margin-bottom:16px"><div style="font-size:11px;color:#94a3b8">PENDIENTES</div><div style="font-size:28px;font-weight:800;color:#f87171">${pendientes}</div></div>
+    <div><div style="font-size:11px;color:#94a3b8">RECAUDADO ENE 2026</div><div style="font-size:18px;font-weight:700;color:#4ade80">${fms(totalEne)}</div><div style="font-size:11px;color:#64748b">${fm(totalEne)}</div></div>
+  `;
+
+  // ===== DIRECTORY =====
+  const dirData = data.filter(r => (r[I.arr]||'').trim() !== '' && (r[I.arr]||'').trim() !== 'DISPONIBLE')
+    .sort((a,b) => pn(b[I.canon]) - pn(a[I.canon]));
+
+  function renderDir(filter) {
+    const f = (filter||'').toLowerCase();
+    const filtered = f ? dirData.filter(r =>
+      (r[I.arr]||'').toLowerCase().includes(f) ||
+      (r[I.ciudad]||'').toLowerCase().includes(f) ||
+      (r[I.estab]||'').toLowerCase().includes(f) ||
+      (r[I.nombre]||'').toLowerCase().includes(f)
+    ) : dirData;
+
+    const shown = filtered.slice(0, 25);
+    document.getElementById('search-count').textContent = `Mostrando ${shown.length} de ${filtered.length} arrendatarios`;
+
+    let html = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Ciudad</th><th>Canon</th><th>Contacto</th></tr></thead><tbody>';
+    shown.forEach(r => {
+      const tel = (r[I.tel]||'').trim();
+      const email = (r[I.correo]||'').trim();
+      let contacto = '';
+      if (tel && tel !== 'X' && tel !== '') contacto += `<a class="wa" href="https://wa.me/57${tel.replace(/\D/g,'')}">📱 ${tel}</a>`;
+      if (email && email !== 'X' && email !== '') contacto += (contacto?'<br>':'') + `<a class="em" href="mailto:${email.split('/')[0].trim()}">✉️ ${email.split('/')[0].trim()}</a>`;
+      if (!contacto) contacto = '<span style="color:#475569">Sin datos</span>';
+
+      html += `<tr><td>${r[I.cod]}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${fm(pn(r[I.canon]))}</td><td>${contacto}</td></tr>`;
+    });
+    html += '</tbody></table>';
+    document.getElementById('directory').innerHTML = html;
+  }
+  renderDir('');
+  document.getElementById('search').addEventListener('input', e => renderDir(e.target.value));
+
+  // ===== VACANTES =====
+  const vacantes = data.filter(r => (r[I.arr]||'').toUpperCase().trim() === 'DISPONIBLE' || (r[I.estado]||'').toUpperCase().trim() === 'DISPONIBLE');
+  let vhtml = '<table><thead><tr><th>COD</th><th>Direccion</th><th>Ciudad</th><th>Establecimiento</th><th>Prop</th></tr></thead><tbody>';
+  if (vacantes.length === 0) {
+    vhtml += '<tr><td colspan="5" style="text-align:center;color:#64748b">No hay locales vacantes</td></tr>';
+  } else {
+    vacantes.forEach(r => {
+      vhtml += `<tr><td>${r[I.cod]}</td><td>${r[I.dir]}</td><td>${r[I.ciudad]}</td><td>${r[I.estab]}</td><td>${r[I.prop]}</td></tr>`;
+    });
+  }
+  vhtml += '</tbody></table>';
+  document.getElementById('vacantes').innerHTML = vhtml;
+
+  // ===== OWNER TABLE =====
+  let ohtml = '<table><thead><tr><th>Propietario</th><th>Locales</th><th>Canon Mensual</th><th>% Total</th></tr></thead><tbody>';
+  ownerSorted.forEach(([name, d]) => {
+    ohtml += `<tr><td style="font-weight:600">${name}</td><td>${d.n}</td><td>${fm(d.canon)}</td><td>${totalCanon>0?(d.canon/totalCanon*100).toFixed(1):'0'}%</td></tr>`;
+  });
+  ohtml += '</tbody></table>';
+  document.getElementById('owner-table').innerHTML = ohtml;
+
+  // ===== TAB: EFECTIVO =====
+  const efctData = data.filter(r => pn(r[I.efct]) > 0);
+  const efctCount = efctData.length;
+  const efctAvg = efctCount > 0 ? totalEfct / efctCount : 0;
+
+  document.getElementById('e-total').textContent = fms(totalEfct);
+  document.getElementById('e-total-det').textContent = fm(totalEfct);
+  document.getElementById('e-count').textContent = efctCount;
+  document.getElementById('e-avg').textContent = fms(efctAvg);
+  document.getElementById('e-avg-det').textContent = fm(efctAvg);
+
+  // Efectivo by owner
+  const efctByOwner = {};
+  data.forEach(r => {
+    const e = pn(r[I.efct]);
+    if (e > 0) {
+      const p = (r[I.prop]||'').trim();
+      efctByOwner[p] = (efctByOwner[p]||0) + e;
+    }
+  });
+  const efctOwnerSorted = Object.entries(efctByOwner).sort((a,b) => b[1] - a[1]);
+
+  new Chart(document.getElementById('ch-efct-owner'), {
+    type:'doughnut',
+    data:{labels:efctOwnerSorted.map(e=>e[0]),datasets:[{data:efctOwnerSorted.map(e=>Math.round(e[1])),backgroundColor:COLORS,borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:11}}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+fm(ctx.raw)}}}}
+  });
+
+  // Efectivo by city
+  const efctByCity = {};
+  data.forEach(r => {
+    const e = pn(r[I.efct]);
+    if (e > 0) {
+      const c = (r[I.ciudad]||'').trim().toUpperCase();
+      efctByCity[c] = (efctByCity[c]||0) + e;
+    }
+  });
+  const efctCitySorted = Object.entries(efctByCity).sort((a,b) => b[1] - a[1]);
+
+  new Chart(document.getElementById('ch-efct-city'), {
+    type:'bar',
+    data:{labels:efctCitySorted.map(e=>e[0]),datasets:[{data:efctCitySorted.map(e=>Math.round(e[1])),backgroundColor:COLORS.slice(0,efctCitySorted.length),borderRadius:4,barThickness:14}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fm(ctx.raw)}}},scales:{x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#94a3b8',callback:v=>fms(v)}},y:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:9}}}}}
+  });
+
+  // Efectivo table
+  const efctSorted = efctData.sort((a,b) => pn(b[I.efct]) - pn(a[I.efct]));
+  let ehtml = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Ciudad</th><th>Efectivo</th><th>Prop</th></tr></thead><tbody>';
+  efctSorted.forEach(r => {
+    ehtml += `<tr><td>${r[I.cod]}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${fm(pn(r[I.efct]))}</td><td>${r[I.prop]}</td></tr>`;
+  });
+  ehtml += '</tbody></table>';
+  document.getElementById('efct-table').innerHTML = ehtml;
+
+  // ===== TAB: TOTAL GENERAL =====
+  const totalGen = totalNeto + totalEfct;
+  document.getElementById('t-total').textContent = fms(totalGen);
+  document.getElementById('t-total-det').textContent = fm(totalGen);
+  document.getElementById('t-neto').textContent = fms(totalNeto);
+  document.getElementById('t-neto-det').textContent = fm(totalNeto);
+  document.getElementById('t-efct').textContent = fms(totalEfct);
+  document.getElementById('t-efct-det').textContent = fm(totalEfct);
+
+  // Total by owner (neto + efct)
+  const totalByOwner = {};
+  data.forEach(r => {
+    const p = (r[I.prop]||'').trim();
+    if (!totalByOwner[p]) totalByOwner[p] = {neto:0, efct:0};
+    totalByOwner[p].neto += pn(r[I.neto]);
+    totalByOwner[p].efct += pn(r[I.efct]);
+  });
+  const totalOwnerSorted = Object.entries(totalByOwner).sort((a,b) => (b[1].neto+b[1].efct) - (a[1].neto+a[1].efct));
+
+  new Chart(document.getElementById('ch-total-owner'), {
+    type:'doughnut',
+    data:{labels:totalOwnerSorted.map(e=>e[0]),datasets:[{data:totalOwnerSorted.map(e=>Math.round(e[1].neto+e[1].efct)),backgroundColor:COLORS,borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:11}}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+fm(ctx.raw)}}}}
+  });
+
+  // Total by city
+  const totalByCity = {};
+  data.forEach(r => {
+    const c = (r[I.ciudad]||'').trim().toUpperCase();
+    if (!c) return;
+    totalByCity[c] = (totalByCity[c]||0) + pn(r[I.neto]) + pn(r[I.efct]);
+  });
+  const totalCitySorted = Object.entries(totalByCity).sort((a,b) => b[1] - a[1]);
+
+  new Chart(document.getElementById('ch-total-city'), {
+    type:'bar',
+    data:{labels:totalCitySorted.map(e=>e[0]),datasets:[{data:totalCitySorted.map(e=>Math.round(e[1])),backgroundColor:COLORS.slice(0,totalCitySorted.length),borderRadius:4,barThickness:14}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fm(ctx.raw)}}},scales:{x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#94a3b8',callback:v=>fms(v)}},y:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:9}}}}}
+  });
+
+  // Compare neto vs efectivo by owner
+  new Chart(document.getElementById('ch-total-compare'), {
+    type:'bar',
+    data:{
+      labels:totalOwnerSorted.map(e=>e[0]),
+      datasets:[
+        {label:'Neto',data:totalOwnerSorted.map(e=>Math.round(e[1].neto)),backgroundColor:'#3b82f6',borderRadius:4},
+        {label:'Efectivo',data:totalOwnerSorted.map(e=>Math.round(e[1].efct)),backgroundColor:'#4ade80',borderRadius:4}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94a3b8'}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fm(ctx.raw)}}},scales:{x:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:9}}},y:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#94a3b8',callback:v=>fms(v)}}}}
+  });
+
+  // Show content
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('content').style.display = 'block';
+
+  // Timestamp
+  const now = new Date();
+  const ts = now.toLocaleDateString('es-CO') + ' ' + now.toLocaleTimeString('es-CO');
+  document.getElementById('timestamp').textContent = 'Actualizado: ' + ts;
+  document.getElementById('footer').textContent = 'Conectado a Google Sheets · ' + ts;
+}
+
+function switchTab(name, el) {
+  document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  el.classList.add('active');
+}
+
+load();
+
+// Auto-refresh every 5 minutes
+setInterval(() => { location.reload(); }, 5 * 60 * 1000);
+</script>
+</body>
+</html>
