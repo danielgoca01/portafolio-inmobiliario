@@ -208,10 +208,10 @@ a.em:hover{text-decoration:underline}
       </div>
     </div>
 
-    <!-- Pagos ENE 2026 -->
+    <!-- Pagos por Mes -->
     <div class="section">
       <div class="charts">
-        <div class="chart-card"><h3>Estado de Pagos - Enero 2026</h3><div class="chart-wrap" style="height:200px"><canvas id="ch-pagos"></canvas></div></div>
+        <div class="chart-card"><h3>Estado de Pagos — <select id="mes-selector" style="background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:4px 10px;font-family:'Inter';font-size:13px;font-weight:600;cursor:pointer;outline:none"></select></h3><div class="chart-wrap" style="height:200px"><canvas id="ch-pagos"></canvas></div></div>
         <div class="chart-card"><h3>Resumen Pagos</h3><div id="pagos-resumen" style="padding:16px"></div></div>
       </div>
     </div>
@@ -382,7 +382,7 @@ function build(h, rows) {
     nombre: ci(h,'NOMBRE COMERCIAL'), arr: ci(h,'ARRENDATARIO'), nit: ci(h,'NIT/CC'),
     correo: ci(h,'CORREO'), tel: cif(h,'TELEF','TELEFONO'), inicio: cif(h,'INICIO','INICIO CONTRATO'),
     incr: cif(h,'INCR','TIPO INCR'), canon: ci(h,'CANON'), neto: ciLast(h,'TOTAL'),
-    pagar: cif(h,'TOT PAG','TOT PAGAR'), estado: cif(h,'ESTADO','X'), ene26: cif(h,'ENERO','ENE 2026'),
+    pagar: cif(h,'TOT PAG','TOT PAGAR'), estado: cif(h,'ESTADO','X'),
     efct: ci(h,'EFCT')
   };
 
@@ -511,24 +511,87 @@ function build(h, rows) {
   t10 += '</tbody></table>';
   document.getElementById('top10').innerHTML = t10;
 
-  // ===== PAGOS ENE 2026 =====
-  let pagados=0, pendientes=0, totalEne=0;
-  data.forEach(r => {
-    const ene = pn(r[I.ene26]);
-    if (ene > 0) { pagados++; totalEne += ene; } else pendientes++;
-  });
+  // ===== PAGOS POR MES (DINÁMICO) =====
+  const MESES_ES = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+  const MESES_LABEL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
-  new Chart(document.getElementById('ch-pagos'), {
-    type:'doughnut',
-    data:{labels:['Pagados','Pendientes'],datasets:[{data:[pagados,pendientes],backgroundColor:['#22c55e','#ef4444'],borderWidth:0}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8'}}}}
-  });
+  // Encontrar todas las columnas de meses en orden (ago 2025 → dic 2026)
+  const monthCols = [];
+  const startSearch = (I.pagar !== -1 ? I.pagar : 25) + 1; // después de TOT PAG y A.A
+  for (let i = startSearch; i < h.length; i++) {
+    const hName = (h[i]||'').trim().toUpperCase();
+    const mIdx = MESES_ES.indexOf(hName);
+    if (mIdx !== -1) {
+      // Calcular año: primeros 12 meses empiezan en ago 2025
+      const seqNum = monthCols.length;
+      let year, month;
+      if (seqNum < 12) {
+        // ago 2025 (seq 0) → jul 2026 (seq 11)
+        month = (7 + seqNum) % 12; // 7=ago, 8=sep, ..., 11=dic, 0=ene, ...
+        year = month >= 7 ? 2025 : 2026;
+      } else {
+        // ago 2026 (seq 12) → dic 2026 (seq 16)
+        month = (7 + (seqNum - 12)) % 12;
+        year = 2026;
+      }
+      monthCols.push({ idx: i, name: MESES_LABEL[month], month, year, label: MESES_LABEL[month] + ' ' + year });
+    }
+  }
 
-  document.getElementById('pagos-resumen').innerHTML = `
-    <div style="margin-bottom:16px"><div style="font-size:11px;color:#94a3b8">PAGADOS</div><div style="font-size:28px;font-weight:800;color:#4ade80">${pagados}</div></div>
-    <div style="margin-bottom:16px"><div style="font-size:11px;color:#94a3b8">PENDIENTES</div><div style="font-size:28px;font-weight:800;color:#f87171">${pendientes}</div></div>
-    <div><div style="font-size:11px;color:#94a3b8">RECAUDADO ENE 2026</div><div style="font-size:18px;font-weight:700;color:#4ade80">${fms(totalEne)}</div><div style="font-size:11px;color:#64748b">${fm(totalEne)}</div></div>
-  `;
+  // Llenar selector de meses
+  const selector = document.getElementById('mes-selector');
+  const today = new Date();
+  const curMonth = today.getMonth(); // 0-indexed
+  const curYear = today.getFullYear();
+  let defaultIdx = 0;
+  monthCols.forEach((mc, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = mc.label;
+    selector.appendChild(opt);
+    if (mc.month === curMonth && mc.year === curYear) defaultIdx = i;
+  });
+  // Si no encontró el mes actual, usar el último con datos
+  if (defaultIdx === 0 && monthCols.length > 0) {
+    for (let i = monthCols.length - 1; i >= 0; i--) {
+      const hasData = data.some(r => pn(r[monthCols[i].idx]) > 0);
+      if (hasData) { defaultIdx = i; break; }
+    }
+  }
+  selector.value = defaultIdx;
+
+  let pagosChart = null;
+  function renderPagos(monthIndex) {
+    const mc = monthCols[monthIndex];
+    if (!mc) return;
+    let pagados = 0, pendientes = 0, totalMes = 0;
+    const activos = data.filter(r => {
+      const arr = (r[I.arr]||'').toUpperCase().trim();
+      return arr !== 'DISPONIBLE' && arr !== '';
+    });
+    activos.forEach(r => {
+      const val = pn(r[mc.idx]);
+      if (val > 0) { pagados++; totalMes += val; } else pendientes++;
+    });
+
+    // Destruir chart anterior y recrear
+    if (pagosChart) pagosChart.destroy();
+    pagosChart = new Chart(document.getElementById('ch-pagos'), {
+      type:'doughnut',
+      data:{labels:['Pagados','Pendientes'],datasets:[{data:[pagados,pendientes],backgroundColor:['#22c55e','#ef4444'],borderWidth:0}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8'}}}}
+    });
+
+    const pct = activos.length > 0 ? (pagados / activos.length * 100).toFixed(1) : '0';
+    document.getElementById('pagos-resumen').innerHTML = `
+      <div style="margin-bottom:16px"><div style="font-size:11px;color:#94a3b8">PAGADOS</div><div style="font-size:28px;font-weight:800;color:#4ade80">${pagados}</div><div style="font-size:11px;color:#64748b">${pct}% de ${activos.length} activos</div></div>
+      <div style="margin-bottom:16px"><div style="font-size:11px;color:#94a3b8">PENDIENTES</div><div style="font-size:28px;font-weight:800;color:#f87171">${pendientes}</div></div>
+      <div><div style="font-size:11px;color:#94a3b8">RECAUDADO ${mc.label.toUpperCase()}</div><div style="font-size:18px;font-weight:700;color:#4ade80">${fms(totalMes)}</div><div style="font-size:11px;color:#64748b">${fm(totalMes)}</div></div>
+    `;
+  }
+
+  renderPagos(defaultIdx);
+  selector.addEventListener('change', e => renderPagos(parseInt(e.target.value)));
 
   // ===== DIRECTORY =====
   const dirData = data.filter(r => (r[I.arr]||'').trim() !== '' && (r[I.arr]||'').trim() !== 'DISPONIBLE')
