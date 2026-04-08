@@ -713,6 +713,11 @@ function build(h, rows) {
       <div style="font-size:28px;font-weight:800;color:#f87171">${debe2.length}</div>
       <div style="font-size:11px;color:#64748b">Morosos</div>
     </div>
+    <div style="flex:1;min-width:140px;background:rgba(59,130,246,0.15);border-radius:12px;padding:14px;border-left:4px solid #3b82f6">
+      <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:600">Total</div>
+      <div style="font-size:28px;font-weight:800;color:#60a5fa">${noDisp.length}</div>
+      <div style="font-size:11px;color:#64748b">${debe1.length + debe2.length} deben (${noDisp.length>0?((debe1.length+debe2.length)/noDisp.length*100).toFixed(0):'0'}%)</div>
+    </div>
   `;
 
   // Tabla de morosos (debe 1 mes + debe 2+ meses)
