@@ -137,7 +137,10 @@ a.em:hover{text-decoration:underline}
       <h1>Portafolio Inmobiliario</h1>
       <div class="sub"><span id="timestamp"></span></div>
     </div>
-    <button onclick="location.reload()" style="padding:8px 18px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-family:'Inter';font-weight:600;white-space:nowrap">↻ Actualizar</button>
+    <div style="display:flex;gap:10px;align-items:center">
+      <select id="filtro-prop" style="padding:8px 14px;background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:8px;font-size:12px;font-family:'Inter';font-weight:600;cursor:pointer;outline:none"><option value="">👤 Todos</option></select>
+      <button onclick="location.reload()" style="padding:8px 18px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-family:'Inter';font-weight:600;white-space:nowrap">↻ Actualizar</button>
+    </div>
   </div>
 </div>
 
@@ -354,6 +357,8 @@ function ciLast(h, name) { // find LAST column with this name
   return last;
 }
 
+let _allHeaders = null, _allRows = null, _charts = [];
+
 async function load() {
   try {
     const res = await fetch(CSV_URL);
@@ -362,15 +367,35 @@ async function load() {
     const all = parseCSV(text);
     if (all.length < 2) throw new Error('Sin datos');
 
-    const headers = all[0];
-    const rows = all.slice(1);
-    build(headers, rows);
+    _allHeaders = all[0];
+    _allRows = all.slice(1);
+
+    // Llenar dropdown de propietarios
+    const propIdx = ci(_allHeaders, 'PROP');
+    const props = [...new Set(_allRows.map(r => (r[propIdx]||'').trim()).filter(p => p))].sort();
+    const sel = document.getElementById('filtro-prop');
+    props.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; sel.appendChild(o); });
+    sel.addEventListener('change', () => applyFilter());
+
+    applyFilter();
 
   } catch(e) {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('error').style.display = 'flex';
     document.getElementById('error-msg').textContent = 'Error: ' + e.message;
   }
+}
+
+function applyFilter() {
+  const prop = document.getElementById('filtro-prop').value;
+  const propIdx = ci(_allHeaders, 'PROP');
+  const filtered = prop ? _allRows.filter(r => (r[propIdx]||'').trim() === prop) : _allRows;
+
+  // Destruir charts anteriores
+  _charts.forEach(c => c.destroy());
+  _charts = [];
+
+  build(_allHeaders, filtered);
 }
 
 function build(h, rows) {
@@ -473,33 +498,33 @@ function build(h, rows) {
 
   // ===== CHARTS =====
   // Owner doughnut
-  new Chart(document.getElementById('ch-owner'), {
+  _charts.push(new Chart(document.getElementById('ch-owner'), {
     type:'doughnut',
     data:{labels:ownerSorted.map(e=>e[0]),datasets:[{data:ownerSorted.map(e=>Math.round(e[1].canon)),backgroundColor:COLORS,borderWidth:0}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:11},padding:10}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+fm(ctx.raw)}}}}
-  });
+  }));
 
   // City count bar
-  new Chart(document.getElementById('ch-city-count'), {
+  _charts.push(new Chart(document.getElementById('ch-city-count'), {
     type:'bar',
     data:{labels:citySorted.map(e=>e[0]),datasets:[{data:citySorted.map(e=>e[1].n),backgroundColor:COLORS.slice(0,citySorted.length),borderRadius:4,barThickness:14}]},
     options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#94a3b8'}},y:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:9}}}}}
-  });
+  }));
 
   // City income bar
-  new Chart(document.getElementById('ch-city-income'), {
+  _charts.push(new Chart(document.getElementById('ch-city-income'), {
     type:'bar',
     data:{labels:cityByIncome.map(e=>e[0]),datasets:[{data:cityByIncome.map(e=>Math.round(e[1].canon)),backgroundColor:COLORS.slice(0,cityByIncome.length),borderRadius:4,barThickness:14}]},
     options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fm(ctx.raw)}}},scales:{x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#94a3b8',callback:v=>fms(v)}},y:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:9}}}}}
-  });
+  }));
 
   // Increment doughnut
   const incrSorted = Object.entries(byIncr).sort((a,b) => b[1] - a[1]);
-  new Chart(document.getElementById('ch-incr'), {
+  _charts.push(new Chart(document.getElementById('ch-incr'), {
     type:'doughnut',
     data:{labels:incrSorted.map(e=>e[0]),datasets:[{data:incrSorted.map(e=>e[1]),backgroundColor:COLORS,borderWidth:0}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:9},padding:8}}}}
-  });
+  }));
 
   // ===== TOP 10 =====
   const top10 = data.filter(r=>pn(r[I.canon])>0).sort((a,b)=>pn(b[I.canon])-pn(a[I.canon])).slice(0,10);
@@ -585,12 +610,13 @@ function build(h, rows) {
     const porCobrar = totalNetoActivos - ingresadoBancos;
 
     // Destruir chart anterior y recrear
-    if (pagosChart) pagosChart.destroy();
+    if (pagosChart) { pagosChart.destroy(); _charts = _charts.filter(c => c !== pagosChart); }
     pagosChart = new Chart(document.getElementById('ch-pagos'), {
       type:'doughnut',
       data:{labels:['Pagados','Pendientes'],datasets:[{data:[pagados,pendientes],backgroundColor:['#22c55e','#ef4444'],borderWidth:0}]},
       options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8'}}}}
     });
+    _charts.push(pagosChart);
 
     const pct = activos.length > 0 ? (pagados / activos.length * 100).toFixed(1) : '0';
     document.getElementById('pagos-resumen').innerHTML = `
@@ -726,11 +752,11 @@ function build(h, rows) {
   });
   const efctOwnerSorted = Object.entries(efctByOwner).sort((a,b) => b[1] - a[1]);
 
-  new Chart(document.getElementById('ch-efct-owner'), {
+  _charts.push(new Chart(document.getElementById('ch-efct-owner'), {
     type:'doughnut',
     data:{labels:efctOwnerSorted.map(e=>e[0]),datasets:[{data:efctOwnerSorted.map(e=>Math.round(e[1])),backgroundColor:COLORS,borderWidth:0}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:11}}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+fm(ctx.raw)}}}}
-  });
+  }));
 
   // Efectivo by city
   const efctByCity = {};
@@ -743,11 +769,11 @@ function build(h, rows) {
   });
   const efctCitySorted = Object.entries(efctByCity).sort((a,b) => b[1] - a[1]);
 
-  new Chart(document.getElementById('ch-efct-city'), {
+  _charts.push(new Chart(document.getElementById('ch-efct-city'), {
     type:'bar',
     data:{labels:efctCitySorted.map(e=>e[0]),datasets:[{data:efctCitySorted.map(e=>Math.round(e[1])),backgroundColor:COLORS.slice(0,efctCitySorted.length),borderRadius:4,barThickness:14}]},
     options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fm(ctx.raw)}}},scales:{x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#94a3b8',callback:v=>fms(v)}},y:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:9}}}}}
-  });
+  }));
 
   // Efectivo table
   const efctSorted = efctData.sort((a,b) => pn(b[I.efct]) - pn(a[I.efct]));
@@ -777,11 +803,11 @@ function build(h, rows) {
   });
   const totalOwnerSorted = Object.entries(totalByOwner).sort((a,b) => (b[1].neto+b[1].efct) - (a[1].neto+a[1].efct));
 
-  new Chart(document.getElementById('ch-total-owner'), {
+  _charts.push(new Chart(document.getElementById('ch-total-owner'), {
     type:'doughnut',
     data:{labels:totalOwnerSorted.map(e=>e[0]),datasets:[{data:totalOwnerSorted.map(e=>Math.round(e[1].neto+e[1].efct)),backgroundColor:COLORS,borderWidth:0}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:11}}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+fm(ctx.raw)}}}}
-  });
+  }));
 
   // Total by city
   const totalByCity = {};
@@ -792,14 +818,14 @@ function build(h, rows) {
   });
   const totalCitySorted = Object.entries(totalByCity).sort((a,b) => b[1] - a[1]);
 
-  new Chart(document.getElementById('ch-total-city'), {
+  _charts.push(new Chart(document.getElementById('ch-total-city'), {
     type:'bar',
     data:{labels:totalCitySorted.map(e=>e[0]),datasets:[{data:totalCitySorted.map(e=>Math.round(e[1])),backgroundColor:COLORS.slice(0,totalCitySorted.length),borderRadius:4,barThickness:14}]},
     options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fm(ctx.raw)}}},scales:{x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#94a3b8',callback:v=>fms(v)}},y:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:9}}}}}
-  });
+  }));
 
   // Compare neto vs efectivo by owner
-  new Chart(document.getElementById('ch-total-compare'), {
+  _charts.push(new Chart(document.getElementById('ch-total-compare'), {
     type:'bar',
     data:{
       labels:totalOwnerSorted.map(e=>e[0]),
@@ -809,7 +835,7 @@ function build(h, rows) {
       ]
     },
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94a3b8'}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fm(ctx.raw)}}},scales:{x:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:9}}},y:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#94a3b8',callback:v=>fms(v)}}}}
-  });
+  }));
 
   // Show content
   document.getElementById('loading').style.display = 'none';
