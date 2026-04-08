@@ -162,8 +162,6 @@ a.em:hover{text-decoration:underline}
     <!-- TABS BAR -->
     <div class="tabs">
       <div class="tab active" onclick="switchTab('general',this)">📊 General</div>
-      <div class="tab t-efct" onclick="switchTab('efectivo',this)">💸 Efectivo</div>
-      <div class="tab t-total" onclick="switchTab('total',this)">🏦 Total</div>
     </div>
 
     <!-- TAB: GENERAL -->
@@ -177,7 +175,6 @@ a.em:hover{text-decoration:underline}
         <div class="kpi c4"><div class="icon">🔴</div><div class="label">Disponibles</div><div class="val" id="k-disp">0</div><div class="det">Sin arrendatario</div></div>
         <div class="kpi c2"><span class="blur-toggle" onclick="toggleBlur(this)">👁️</span><div class="icon">🏦</div><div class="kpi-content blurred"><div class="label">Canon Mensual / Sin IVA</div><div class="val" id="k-canon">$0</div><div class="det" id="k-canon-det"></div></div></div>
         <div class="kpi c3"><span class="blur-toggle" onclick="toggleBlur(this)">👁️</span><div class="icon">💵</div><div class="kpi-content blurred"><div class="label">Total Neto / Lo que Ingresa a Bancos</div><div class="val" id="k-neto">$0</div><div class="det" id="k-neto-det"></div></div></div>
-        <div class="kpi c1"><span class="blur-toggle" onclick="toggleBlur(this)">👁️</span><div class="icon">💎</div><div class="kpi-content blurred"><div class="label">Total General / Gran Total</div><div class="val" id="k-totalgen" style="color:#60a5fa">$0</div><div class="det" id="k-totalgen-det"></div></div></div>
       </div>
     </div>
 
@@ -250,43 +247,6 @@ a.em:hover{text-decoration:underline}
 
     </div><!-- end page-general -->
 
-    <!-- TAB: EFECTIVO -->
-    <div class="tab-page" id="page-efectivo">
-      <div class="section">
-        <div class="kpis">
-          <div class="kpi c2"><div class="icon">💸</div><div class="label">Efectivo Total</div><div class="val" style="color:#4ade80" id="e-total">$0</div><div class="det" id="e-total-det"></div></div>
-          <div class="kpi c2"><div class="icon">👥</div><div class="label">Locales con Efectivo</div><div class="val" style="color:#4ade80" id="e-count">0</div><div class="det">Que reciben pago en efectivo</div></div>
-          <div class="kpi c2"><div class="icon">📊</div><div class="label">Promedio por Local</div><div class="val" style="color:#4ade80" id="e-avg">$0</div><div class="det" id="e-avg-det"></div></div>
-        </div>
-      </div>
-      <div class="section"><div class="charts">
-        <div class="chart-card"><h3 style="color:#4ade80">Efectivo por Propietario</h3><div class="chart-wrap"><canvas id="ch-efct-owner"></canvas></div></div>
-        <div class="chart-card"><h3 style="color:#4ade80">Efectivo por Ciudad</h3><div class="chart-wrap"><canvas id="ch-efct-city"></canvas></div></div>
-      </div></div>
-      <div class="section"><div class="chart-card">
-        <h3 style="color:#4ade80">Detalle Efectivo por Arrendatario</h3>
-        <div style="overflow-x:auto;max-height:400px;overflow-y:auto" id="efct-table"></div>
-      </div></div>
-    </div><!-- end page-efectivo -->
-
-    <!-- TAB: TOTAL -->
-    <div class="tab-page" id="page-total">
-      <div class="section">
-        <div class="kpis">
-          <div class="kpi c3"><div class="icon">🏦</div><div class="label">Total General</div><div class="val" style="color:#c084fc" id="t-total">$0</div><div class="det" id="t-total-det"></div></div>
-          <div class="kpi c3"><div class="icon">💵</div><div class="label">Neto (Declarado)</div><div class="val" style="color:#c084fc" id="t-neto">$0</div><div class="det" id="t-neto-det"></div></div>
-          <div class="kpi c3"><div class="icon">💸</div><div class="label">Efectivo</div><div class="val" style="color:#4ade80" id="t-efct">$0</div><div class="det" id="t-efct-det"></div></div>
-        </div>
-      </div>
-      <div class="section"><div class="charts">
-        <div class="chart-card"><h3 style="color:#c084fc">Total General por Propietario</h3><div class="chart-wrap"><canvas id="ch-total-owner"></canvas></div></div>
-        <div class="chart-card"><h3 style="color:#c084fc">Total General por Ciudad</h3><div class="chart-wrap"><canvas id="ch-total-city"></canvas></div></div>
-      </div></div>
-      <div class="section"><div class="chart-card">
-        <h3 style="color:#c084fc">Comparativo Neto vs Efectivo por Propietario</h3>
-        <div class="chart-wrap" style="height:320px"><canvas id="ch-total-compare"></canvas></div>
-      </div></div>
-    </div><!-- end page-total -->
 
   </div>
 </div>
@@ -459,8 +419,6 @@ function build(h, rows) {
   document.getElementById('k-canon-det').textContent = fm(totalCanon);
   document.getElementById('k-neto').textContent = fms(totalNeto);
   document.getElementById('k-neto-det').textContent = 'Canon + IVA - ADM - Retenciones = ' + fm(totalNeto);
-  document.getElementById('k-totalgen').textContent = fms(totalPagar);
-  document.getElementById('k-totalgen-det').textContent = 'Neto + Efectivo = ' + fm(totalPagar);
 
   // Ingresado a Bancos: sumar TOTAL NETO de quienes pagaron el mes actual
   // (Se calcula después de detectar las columnas de meses — ver sección PAGOS)
@@ -757,113 +715,6 @@ function build(h, rows) {
   } else {
     document.getElementById('cartera-table').innerHTML = '<div style="text-align:center;color:#4ade80;padding:20px;font-weight:600">Todos los arrendatarios están al día</div>';
   }
-
-  // ===== TAB: EFECTIVO =====
-  const efctData = data.filter(r => pn(r[I.efct]) > 0);
-  const efctCount = efctData.length;
-  const efctAvg = efctCount > 0 ? totalEfct / efctCount : 0;
-
-  document.getElementById('e-total').textContent = fms(totalEfct);
-  document.getElementById('e-total-det').textContent = fm(totalEfct);
-  document.getElementById('e-count').textContent = efctCount;
-  document.getElementById('e-avg').textContent = fms(efctAvg);
-  document.getElementById('e-avg-det').textContent = fm(efctAvg);
-
-  // Efectivo by owner
-  const efctByOwner = {};
-  data.forEach(r => {
-    const e = pn(r[I.efct]);
-    if (e > 0) {
-      const p = (r[I.prop]||'').trim();
-      efctByOwner[p] = (efctByOwner[p]||0) + e;
-    }
-  });
-  const efctOwnerSorted = Object.entries(efctByOwner).sort((a,b) => b[1] - a[1]);
-
-  _charts.push(new Chart(document.getElementById('ch-efct-owner'), {
-    type:'doughnut',
-    data:{labels:efctOwnerSorted.map(e=>e[0]),datasets:[{data:efctOwnerSorted.map(e=>Math.round(e[1])),backgroundColor:COLORS,borderWidth:0}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:11}}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+fm(ctx.raw)}}}}
-  }));
-
-  // Efectivo by city
-  const efctByCity = {};
-  data.forEach(r => {
-    const e = pn(r[I.efct]);
-    if (e > 0) {
-      const c = (r[I.ciudad]||'').trim().toUpperCase();
-      efctByCity[c] = (efctByCity[c]||0) + e;
-    }
-  });
-  const efctCitySorted = Object.entries(efctByCity).sort((a,b) => b[1] - a[1]);
-
-  _charts.push(new Chart(document.getElementById('ch-efct-city'), {
-    type:'bar',
-    data:{labels:efctCitySorted.map(e=>e[0]),datasets:[{data:efctCitySorted.map(e=>Math.round(e[1])),backgroundColor:COLORS.slice(0,efctCitySorted.length),borderRadius:4,barThickness:14}]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fm(ctx.raw)}}},scales:{x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#94a3b8',callback:v=>fms(v)}},y:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:9}}}}}
-  }));
-
-  // Efectivo table
-  const efctSorted = efctData.sort((a,b) => pn(b[I.efct]) - pn(a[I.efct]));
-  let ehtml = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Ciudad</th><th>Efectivo</th><th>Prop</th></tr></thead><tbody>';
-  efctSorted.forEach(r => {
-    ehtml += `<tr><td>${r[I.cod]}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${fm(pn(r[I.efct]))}</td><td>${r[I.prop]}</td></tr>`;
-  });
-  ehtml += '</tbody></table>';
-  document.getElementById('efct-table').innerHTML = ehtml;
-
-  // ===== TAB: TOTAL GENERAL =====
-  const totalGen = totalNeto + totalEfct;
-  document.getElementById('t-total').textContent = fms(totalGen);
-  document.getElementById('t-total-det').textContent = fm(totalGen);
-  document.getElementById('t-neto').textContent = fms(totalNeto);
-  document.getElementById('t-neto-det').textContent = fm(totalNeto);
-  document.getElementById('t-efct').textContent = fms(totalEfct);
-  document.getElementById('t-efct-det').textContent = fm(totalEfct);
-
-  // Total by owner (neto + efct)
-  const totalByOwner = {};
-  data.forEach(r => {
-    const p = (r[I.prop]||'').trim();
-    if (!totalByOwner[p]) totalByOwner[p] = {neto:0, efct:0};
-    totalByOwner[p].neto += pn(r[I.neto]);
-    totalByOwner[p].efct += pn(r[I.efct]);
-  });
-  const totalOwnerSorted = Object.entries(totalByOwner).sort((a,b) => (b[1].neto+b[1].efct) - (a[1].neto+a[1].efct));
-
-  _charts.push(new Chart(document.getElementById('ch-total-owner'), {
-    type:'doughnut',
-    data:{labels:totalOwnerSorted.map(e=>e[0]),datasets:[{data:totalOwnerSorted.map(e=>Math.round(e[1].neto+e[1].efct)),backgroundColor:COLORS,borderWidth:0}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:11}}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+fm(ctx.raw)}}}}
-  }));
-
-  // Total by city
-  const totalByCity = {};
-  data.forEach(r => {
-    const c = (r[I.ciudad]||'').trim().toUpperCase();
-    if (!c) return;
-    totalByCity[c] = (totalByCity[c]||0) + pn(r[I.neto]) + pn(r[I.efct]);
-  });
-  const totalCitySorted = Object.entries(totalByCity).sort((a,b) => b[1] - a[1]);
-
-  _charts.push(new Chart(document.getElementById('ch-total-city'), {
-    type:'bar',
-    data:{labels:totalCitySorted.map(e=>e[0]),datasets:[{data:totalCitySorted.map(e=>Math.round(e[1])),backgroundColor:COLORS.slice(0,totalCitySorted.length),borderRadius:4,barThickness:14}]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fm(ctx.raw)}}},scales:{x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#94a3b8',callback:v=>fms(v)}},y:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:9}}}}}
-  }));
-
-  // Compare neto vs efectivo by owner
-  _charts.push(new Chart(document.getElementById('ch-total-compare'), {
-    type:'bar',
-    data:{
-      labels:totalOwnerSorted.map(e=>e[0]),
-      datasets:[
-        {label:'Neto',data:totalOwnerSorted.map(e=>Math.round(e[1].neto)),backgroundColor:'#3b82f6',borderRadius:4},
-        {label:'Efectivo',data:totalOwnerSorted.map(e=>Math.round(e[1].efct)),backgroundColor:'#4ade80',borderRadius:4}
-      ]
-    },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94a3b8'}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fm(ctx.raw)}}},scales:{x:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:9}}},y:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#94a3b8',callback:v=>fms(v)}}}}
-  }));
 
   // Show content
   document.getElementById('loading').style.display = 'none';
