@@ -680,13 +680,13 @@ function build(h, rows) {
   // Tabla de morosos (debe 1 mes + debe 2+ meses)
   const morosos = [...debe2, ...debe1];
   if (morosos.length > 0) {
-    let chtml = '<table><thead><tr><th>Estado</th><th>Arrendatario</th><th>Ciudad</th><th>Canon</th><th>Propietario</th></tr></thead><tbody>';
+    let chtml = '<table><thead><tr><th>Estado</th><th>Arrendatario</th><th>Ciudad</th><th>Tot. a Pagar</th><th>Propietario</th></tr></thead><tbody>';
     morosos.forEach(r => {
       const est = (r[estadoCol]||'').trim().toUpperCase();
       const badge = est === 'XX'
         ? '<span class="badge badge-yellow">Debe 1 mes</span>'
         : '<span class="badge badge-red">Debe 2+ meses</span>';
-      chtml += `<tr><td>${badge}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${fm(pn(r[I.canon]))}</td><td>${r[I.prop]}</td></tr>`;
+      chtml += `<tr><td>${badge}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${fm(pn(r[I.pagar]))}</td><td>${r[I.prop]}</td></tr>`;
     });
     chtml += '</tbody></table>';
     document.getElementById('cartera-table').innerHTML = chtml;
