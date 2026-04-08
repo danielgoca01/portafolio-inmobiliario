@@ -285,8 +285,8 @@ a.em:hover{text-decoration:underline}
 <div class="footer" id="footer">Datos actualizados desde Google Sheets</div>
 
 <script>
-const SHEET_ID = '11yTp_iBTs1dwi0uwnrfbeFIJKHHbDkMJN2S8O5y7Hhw';
-const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1071232081`;
+const SHEET_ID = '1adoH_ifihZH7f9yDyIMccD7PY-O4Sxu5';
+const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=1398193718`;
 const COLORS = ['#3b82f6','#22c55e','#f97316','#ef4444','#a855f7','#ec4899','#14b8a6','#f59e0b','#6366f1','#84cc16','#06b6d4','#e11d48','#8b5cf6','#10b981'];
 
 function parseCSV(text) {
@@ -513,16 +513,16 @@ function build(h, rows) {
     const hName = (h[i]||'').trim().toUpperCase();
     const mIdx = MESES_ES.indexOf(hName);
     if (mIdx !== -1) {
-      // Calcular año: primeros 12 meses empiezan en ago 2025
+      // Calcular año: primeros 12 meses empiezan en oct 2025
       const seqNum = monthCols.length;
       let year, month;
       if (seqNum < 12) {
-        // ago 2025 (seq 0) → jul 2026 (seq 11)
-        month = (7 + seqNum) % 12; // 7=ago, 8=sep, ..., 11=dic, 0=ene, ...
-        year = month >= 7 ? 2025 : 2026;
+        // oct 2025 (seq 0) → sep 2026 (seq 11)
+        month = (9 + seqNum) % 12; // 9=oct, 10=nov, 11=dic, 0=ene, ...
+        year = month >= 9 ? 2025 : 2026;
       } else {
-        // ago 2026 (seq 12) → dic 2026 (seq 16)
-        month = (7 + (seqNum - 12)) % 12;
+        // oct 2026 (seq 12) → dic 2026 (seq 14)
+        month = (9 + (seqNum - 12)) % 12;
         year = 2026;
       }
       monthCols.push({ idx: i, name: MESES_LABEL[month], month, year, label: MESES_LABEL[month] + ' ' + year });
