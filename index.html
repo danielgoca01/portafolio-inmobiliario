@@ -697,7 +697,7 @@ function build(h, rows) {
     else debe2.push(r);
   });
 
-  const deudaTotal = [...debe2, ...debe1].reduce((sum, r) => sum + pn(r[I.pagar]), 0);
+  const deudaTotal = debe2.reduce((sum, r) => sum + pn(r[I.pagar]), 0);
   document.getElementById('cartera-kpis').innerHTML = `
     <div style="flex:1;min-width:140px;background:rgba(34,197,94,0.15);border-radius:12px;padding:14px;border-left:4px solid #22c55e">
       <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:600">Al día</div>
@@ -729,7 +729,7 @@ function build(h, rows) {
   // Tabla de morosos (debe 1 mes + debe 2+ meses)
   const morosos = [...debe2, ...debe1];
   if (morosos.length > 0) {
-    let chtml = '<table><thead><tr><th>Estado</th><th>Arrendatario</th><th>Ciudad</th><th>Tot. a Pagar</th><th>Meses que Debe</th><th>Prop</th></tr></thead><tbody>';
+    let chtml = '<table><thead><tr><th>COD</th><th>Estado</th><th>Arrendatario</th><th>Ciudad</th><th>Tot. a Pagar</th><th>Meses que Debe</th><th>Prop</th></tr></thead><tbody>';
     morosos.forEach(r => {
       const est = (r[estadoCol]||'').trim().toUpperCase();
       const badge = est === 'XX'
@@ -740,7 +740,7 @@ function build(h, rows) {
         const raw = (r[mc.idx]||'').trim();
         return raw !== '' && pn(raw) > 0;
       }).map(mc => mc.name.substring(0,3)).join(', ');
-      chtml += `<tr><td>${badge}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${fm(pn(r[I.pagar]))}</td><td style="font-size:11px;color:#fcd34d">${mesesDebe || '-'}</td><td>${r[I.prop]}</td></tr>`;
+      chtml += `<tr><td>${r[I.cod]}</td><td>${badge}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${fm(pn(r[I.pagar]))}</td><td style="font-size:11px;color:#fcd34d">${mesesDebe || '-'}</td><td>${r[I.prop]}</td></tr>`;
     });
     chtml += '</tbody></table>';
     document.getElementById('cartera-table').innerHTML = chtml;
