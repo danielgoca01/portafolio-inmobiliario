@@ -641,7 +641,7 @@ function build(h, rows) {
   document.getElementById('vacantes').innerHTML = vhtml;
 
   // ===== OWNER TABLE =====
-  let ohtml = '<table><thead><tr><th>Propietario</th><th>Locales</th><th>Canon Mensual</th><th>% Total</th></tr></thead><tbody>';
+  let ohtml = '<table><thead><tr><th>Propietario</th><th>Locales</th><th>Canon Mensual (sin IVA)</th><th>% Total</th></tr></thead><tbody>';
   ownerSorted.forEach(([name, d]) => {
     ohtml += `<tr><td style="font-weight:600">${name}</td><td>${d.n}</td><td>${fm(d.canon)}</td><td>${totalCanon>0?(d.canon/totalCanon*100).toFixed(1):'0'}%</td></tr>`;
   });
