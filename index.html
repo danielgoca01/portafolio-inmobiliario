@@ -705,7 +705,7 @@ function build(h, rows) {
       <div style="font-size:11px;color:#64748b">${noDisp.length>0?(alDia.length/noDisp.length*100).toFixed(0):'0'}% del total</div>
     </div>
     <div style="flex:1;min-width:140px;background:rgba(234,179,8,0.15);border-radius:12px;padding:14px;border-left:4px solid #eab308">
-      <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:600">Debe 1 mes</div>
+      <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:600">Debe 1 mes (${['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][new Date().getMonth()]})</div>
       <div style="font-size:28px;font-weight:800;color:#fcd34d">${debe1.length}</div>
       <div style="font-size:11px;color:#64748b">${noDisp.length>0?(debe1.length/noDisp.length*100).toFixed(0):'0'}% del total</div>
     </div>
