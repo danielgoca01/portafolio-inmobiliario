@@ -169,7 +169,6 @@ a.em:hover{text-decoration:underline}
         <div class="kpi c2"><div class="icon">💰</div><div class="label">Canon Mensual</div><div class="val" id="k-canon">$0</div><div class="det" id="k-canon-det"></div></div>
         <div class="kpi c3"><div class="icon">💵</div><div class="label">Total Neto</div><div class="val" id="k-neto">$0</div><div class="det" id="k-neto-det"></div></div>
         <div class="kpi c1"><div class="icon">🏦</div><div class="label">Total General</div><div class="val" id="k-totalgen" style="color:#60a5fa">$0</div><div class="det" id="k-totalgen-det"></div></div>
-        <div class="kpi c2"><div class="icon">🏧</div><div class="label">Ingresado a Bancos</div><div class="val" id="k-ingresado" style="color:#4ade80">$0</div><div class="det" id="k-ingresado-det"></div></div>
         <div class="kpi c4"><div class="icon">🔴</div><div class="label">Disponibles</div><div class="val" id="k-disp">0</div><div class="det">Sin arrendatario</div></div>
       </div>
     </div>
@@ -591,9 +590,7 @@ function build(h, rows) {
       }
     });
 
-    // Actualizar KPI Ingresado a Bancos
-    document.getElementById('k-ingresado').textContent = fms(ingresadoBancos);
-    document.getElementById('k-ingresado-det').textContent = mc.label + ' (sin efectivo) = ' + fm(ingresadoBancos);
+    // Ingresado a Bancos se muestra dentro del resumen de pagos
 
     // Destruir chart anterior y recrear
     if (pagosChart) pagosChart.destroy();
@@ -607,7 +604,8 @@ function build(h, rows) {
     document.getElementById('pagos-resumen').innerHTML = `
       <div style="margin-bottom:16px"><div style="font-size:11px;color:#94a3b8">PAGADOS</div><div style="font-size:28px;font-weight:800;color:#4ade80">${pagados}</div><div style="font-size:11px;color:#64748b">${pct}% de ${activos.length} activos</div></div>
       <div style="margin-bottom:16px"><div style="font-size:11px;color:#94a3b8">PENDIENTES</div><div style="font-size:28px;font-weight:800;color:#f87171">${pendientes}</div></div>
-      <div><div style="font-size:11px;color:#94a3b8">POR COBRAR ${mc.label.toUpperCase()}</div><div style="font-size:18px;font-weight:700;color:#f87171">${fms(totalMes)}</div><div style="font-size:11px;color:#64748b">${fm(totalMes)}</div></div>
+      <div style="margin-bottom:16px"><div style="font-size:11px;color:#94a3b8">INGRESADO A BANCOS</div><div style="font-size:18px;font-weight:700;color:#4ade80">${fms(ingresadoBancos)}</div><div style="font-size:11px;color:#64748b">${mc.label} (sin efectivo) = ${fm(ingresadoBancos)}</div></div>
+      <div><div style="font-size:11px;color:#94a3b8">POR COBRAR</div><div style="font-size:18px;font-weight:700;color:#f87171">${fms(totalMes)}</div><div style="font-size:11px;color:#64748b">${fm(totalMes)}</div></div>
     `;
   }
 
