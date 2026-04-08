@@ -168,6 +168,8 @@ a.em:hover{text-decoration:underline}
         <div class="kpi c1"><div class="icon">🏢</div><div class="label">Total Locales</div><div class="val" id="k-total">0</div><div class="det" id="k-total-det"></div></div>
         <div class="kpi c2"><div class="icon">💰</div><div class="label">Canon Mensual</div><div class="val" id="k-canon">$0</div><div class="det" id="k-canon-det"></div></div>
         <div class="kpi c3"><div class="icon">💵</div><div class="label">Total Neto</div><div class="val" id="k-neto">$0</div><div class="det" id="k-neto-det"></div></div>
+        <div class="kpi c1"><div class="icon">🏦</div><div class="label">Total General</div><div class="val" id="k-totalgen" style="color:#60a5fa">$0</div><div class="det" id="k-totalgen-det"></div></div>
+        <div class="kpi c2"><div class="icon">🏧</div><div class="label">Ingresado a Bancos</div><div class="val" id="k-ingresado" style="color:#4ade80">$0</div><div class="det" id="k-ingresado-det"></div></div>
         <div class="kpi c4"><div class="icon">🔴</div><div class="label">Disponibles</div><div class="val" id="k-disp">0</div><div class="det">Sin arrendatario</div></div>
       </div>
     </div>
@@ -396,7 +398,7 @@ function build(h, rows) {
   const data = rows.filter(r => r[I.cod] && r[I.cod] !== '');
 
   // KPIs
-  let activos=0, disponibles=0, totalCanon=0, totalNeto=0, totalEfct=0;
+  let activos=0, disponibles=0, totalCanon=0, totalNeto=0, totalEfct=0, totalPagar=0;
   data.forEach(r => {
     const arr = (r[I.arr]||'').toUpperCase().trim();
     const est = (r[I.estado]||'').toUpperCase().trim();
@@ -407,6 +409,7 @@ function build(h, rows) {
     totalCanon += canon;
     totalNeto += pn(r[I.neto]);
     totalEfct += efct;
+    totalPagar += pn(r[I.pagar]);
   });
 
   // Animated counter function
@@ -430,6 +433,13 @@ function build(h, rows) {
   document.getElementById('k-canon-det').textContent = fm(totalCanon);
   document.getElementById('k-neto').textContent = fms(totalNeto);
   document.getElementById('k-neto-det').textContent = 'Bruto - ADM - Retenciones = ' + fm(totalNeto);
+  document.getElementById('k-totalgen').textContent = fms(totalPagar);
+  document.getElementById('k-totalgen-det').textContent = 'Neto + Efectivo = ' + fm(totalPagar);
+
+  // Ingresado a Bancos: sumar TOTAL NETO de quienes pagaron el mes actual
+  // (Se calcula después de detectar las columnas de meses — ver sección PAGOS)
+  // Placeholder, se actualiza en renderPagos()
+
   animateNum(document.getElementById('k-disp'), disponibles, 1000);
 
   // Occupancy
@@ -564,7 +574,7 @@ function build(h, rows) {
   function renderPagos(monthIndex) {
     const mc = monthCols[monthIndex];
     if (!mc) return;
-    let pagados = 0, pendientes = 0, totalMes = 0;
+    let pagados = 0, pendientes = 0, totalMes = 0, ingresadoBancos = 0;
     const activos = data.filter(r => {
       const arr = (r[I.arr]||'').toUpperCase().trim();
       return arr !== 'DISPONIBLE' && arr !== '';
@@ -572,8 +582,18 @@ function build(h, rows) {
     activos.forEach(r => {
       const raw = (r[mc.idx]||'').trim();
       const val = pn(raw);
-      if (raw === '' || val === 0) { pagados++; } else { pendientes++; totalMes += val; }
+      if (raw === '' || val === 0) {
+        pagados++;
+        ingresadoBancos += pn(r[I.neto]); // sumar neto (sin efectivo) de los que pagaron
+      } else {
+        pendientes++;
+        totalMes += val;
+      }
     });
+
+    // Actualizar KPI Ingresado a Bancos
+    document.getElementById('k-ingresado').textContent = fms(ingresadoBancos);
+    document.getElementById('k-ingresado-det').textContent = mc.label + ' (sin efectivo) = ' + fm(ingresadoBancos);
 
     // Destruir chart anterior y recrear
     if (pagosChart) pagosChart.destroy();
