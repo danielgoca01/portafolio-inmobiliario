@@ -634,7 +634,7 @@ function build(h, rows) {
 
   // ===== DIRECTORY =====
   const dirData = data.filter(r => (r[I.arr]||'').trim() !== '' && (r[I.arr]||'').trim() !== 'DISPONIBLE')
-    .sort((a,b) => pn(b[I.canon]) - pn(a[I.canon]));
+    .sort((a,b) => pn(a[I.cod]) - pn(b[I.cod]));
 
   function renderDir(filter) {
     const f = (filter||'').toLowerCase();
