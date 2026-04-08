@@ -46,6 +46,10 @@ body{font-family:'Inter',sans-serif;background:#0a0f1a;color:#e2e8f0;min-height:
 .kpi.c1 .val{color:#60a5fa}.kpi.c2 .val{color:#4ade80}.kpi.c3 .val{color:#c084fc}
 .kpi.c4 .val{color:#fb923c}.kpi.c5 .val{color:#f87171}
 .kpi .det{font-size:11px;color:#64748b;margin-top:2px}
+.kpi .blur-toggle{position:absolute;top:10px;right:10px;cursor:pointer;font-size:14px;opacity:0.4;transition:opacity 0.2s;z-index:2;user-select:none}
+.kpi .blur-toggle:hover{opacity:0.8}
+.kpi .kpi-content{transition:filter 0.3s}
+.kpi .kpi-content.blurred .val,.kpi .kpi-content.blurred .det{filter:blur(8px);user-select:none}
 
 /* Occupancy */
 .occ-bar{width:100%;height:28px;background:#1e293b;border-radius:14px;overflow:hidden;margin:8px 0}
@@ -171,9 +175,9 @@ a.em:hover{text-decoration:underline}
         <div class="kpi c1"><div class="icon">🏢</div><div class="label">Total Locales</div><div class="val" id="k-total">0</div><div class="det" id="k-total-det"></div></div>
         <div class="kpi c2"><div class="icon">📊</div><div class="label">Tasa de Ocupación</div><div class="val" id="k-occ" style="color:#4ade80;font-size:32px">0%</div><div class="det" id="occ-det"></div></div>
         <div class="kpi c4"><div class="icon">🔴</div><div class="label">Disponibles</div><div class="val" id="k-disp">0</div><div class="det">Sin arrendatario</div></div>
-        <div class="kpi c2"><div class="icon">🏦</div><div class="label">Canon Mensual / Sin IVA</div><div class="val" id="k-canon">$0</div><div class="det" id="k-canon-det"></div></div>
-        <div class="kpi c3"><div class="icon">💵</div><div class="label">Total Neto / Lo que Ingresa a Bancos</div><div class="val" id="k-neto">$0</div><div class="det" id="k-neto-det"></div></div>
-        <div class="kpi c1"><div class="icon">💎</div><div class="label">Total General / Gran Total</div><div class="val" id="k-totalgen" style="color:#60a5fa">$0</div><div class="det" id="k-totalgen-det"></div></div>
+        <div class="kpi c2"><span class="blur-toggle" onclick="toggleBlur(this)">👁️</span><div class="icon">🏦</div><div class="kpi-content blurred"><div class="label">Canon Mensual / Sin IVA</div><div class="val" id="k-canon">$0</div><div class="det" id="k-canon-det"></div></div></div>
+        <div class="kpi c3"><span class="blur-toggle" onclick="toggleBlur(this)">👁️</span><div class="icon">💵</div><div class="kpi-content blurred"><div class="label">Total Neto / Lo que Ingresa a Bancos</div><div class="val" id="k-neto">$0</div><div class="det" id="k-neto-det"></div></div></div>
+        <div class="kpi c1"><span class="blur-toggle" onclick="toggleBlur(this)">👁️</span><div class="icon">💎</div><div class="kpi-content blurred"><div class="label">Total General / Gran Total</div><div class="val" id="k-totalgen" style="color:#60a5fa">$0</div><div class="det" id="k-totalgen-det"></div></div></div>
       </div>
     </div>
 
@@ -355,6 +359,12 @@ function ciLast(h, name) { // find LAST column with this name
   let last = -1;
   for (let i = 0; i < h.length; i++) { if (h[i].toUpperCase().trim() === clean) last = i; }
   return last;
+}
+
+function toggleBlur(el) {
+  const content = el.parentElement.querySelector('.kpi-content');
+  content.classList.toggle('blurred');
+  el.textContent = content.classList.contains('blurred') ? '👁️' : '👁️‍🗨️';
 }
 
 let _allHeaders = null, _allRows = null, _charts = [];
