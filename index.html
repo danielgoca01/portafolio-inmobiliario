@@ -583,14 +583,15 @@ function build(h, rows) {
       const val = pn(raw);
       if (raw === '' || val === 0) {
         pagados++;
-        ingresadoBancos += pn(r[I.neto]); // sumar neto (sin efectivo) de los que pagaron
+        ingresadoBancos += pn(r[I.neto]); // sumar TOTAL NETO (sin efectivo) de los que pagaron
       } else {
         pendientes++;
-        totalMes += val;
       }
     });
 
-    // Ingresado a Bancos se muestra dentro del resumen de pagos
+    // Por Cobrar = Total Neto de todos - Ingresado
+    const totalNetoActivos = activos.reduce((sum, r) => sum + pn(r[I.neto]), 0);
+    const porCobrar = totalNetoActivos - ingresadoBancos;
 
     // Destruir chart anterior y recrear
     if (pagosChart) pagosChart.destroy();
@@ -604,8 +605,8 @@ function build(h, rows) {
     document.getElementById('pagos-resumen').innerHTML = `
       <div style="margin-bottom:16px"><div style="font-size:11px;color:#94a3b8">PAGADOS</div><div style="font-size:28px;font-weight:800;color:#4ade80">${pagados}</div><div style="font-size:11px;color:#64748b">${pct}% de ${activos.length} activos</div></div>
       <div style="margin-bottom:16px"><div style="font-size:11px;color:#94a3b8">PENDIENTES</div><div style="font-size:28px;font-weight:800;color:#f87171">${pendientes}</div></div>
-      <div style="margin-bottom:16px"><div style="font-size:11px;color:#94a3b8">INGRESADO A BANCOS</div><div style="font-size:18px;font-weight:700;color:#4ade80">${fms(ingresadoBancos)}</div><div style="font-size:11px;color:#64748b">${mc.label} (sin efectivo) = ${fm(ingresadoBancos)}</div></div>
-      <div><div style="font-size:11px;color:#94a3b8">POR COBRAR</div><div style="font-size:18px;font-weight:700;color:#f87171">${fms(totalMes)}</div><div style="font-size:11px;color:#64748b">${fm(totalMes)}</div></div>
+      <div style="margin-bottom:16px"><div style="font-size:11px;color:#94a3b8">INGRESADO A BANCOS</div><div style="font-size:18px;font-weight:700;color:#4ade80">${fms(ingresadoBancos)}</div><div style="font-size:11px;color:#64748b">${mc.label} = ${fm(ingresadoBancos)}</div></div>
+      <div><div style="font-size:11px;color:#94a3b8">POR COBRAR</div><div style="font-size:18px;font-weight:700;color:#f87171">${fms(porCobrar)}</div><div style="font-size:11px;color:#64748b">${fm(porCobrar)}</div></div>
     `;
   }
 
