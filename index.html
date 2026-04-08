@@ -718,13 +718,18 @@ function build(h, rows) {
   // Tabla de morosos (debe 1 mes + debe 2+ meses)
   const morosos = [...debe2, ...debe1];
   if (morosos.length > 0) {
-    let chtml = '<table><thead><tr><th>Estado</th><th>Arrendatario</th><th>Ciudad</th><th>Tot. a Pagar</th><th>Propietario</th></tr></thead><tbody>';
+    let chtml = '<table><thead><tr><th>Estado</th><th>Arrendatario</th><th>Ciudad</th><th>Tot. a Pagar</th><th>Meses que Debe</th><th>Prop</th></tr></thead><tbody>';
     morosos.forEach(r => {
       const est = (r[estadoCol]||'').trim().toUpperCase();
       const badge = est === 'XX'
         ? '<span class="badge badge-yellow">Debe 1 mes</span>'
         : '<span class="badge badge-red">Debe 2+ meses</span>';
-      chtml += `<tr><td>${badge}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${fm(pn(r[I.pagar]))}</td><td>${r[I.prop]}</td></tr>`;
+      // Detectar qué meses debe (celdas con valor = no pagó)
+      const mesesDebe = monthCols.filter(mc => {
+        const raw = (r[mc.idx]||'').trim();
+        return raw !== '' && pn(raw) > 0;
+      }).map(mc => mc.name.substring(0,3)).join(', ');
+      chtml += `<tr><td>${badge}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${fm(pn(r[I.pagar]))}</td><td style="font-size:11px;color:#fcd34d">${mesesDebe || '-'}</td><td>${r[I.prop]}</td></tr>`;
     });
     chtml += '</tbody></table>';
     document.getElementById('cartera-table').innerHTML = chtml;
