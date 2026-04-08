@@ -231,6 +231,15 @@ a.em:hover{text-decoration:underline}
       </div>
     </div>
 
+    <!-- Semáforo de Cartera -->
+    <div class="section">
+      <div class="chart-card">
+        <h3>Estado de Cartera</h3>
+        <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap" id="cartera-kpis"></div>
+        <div style="overflow-x:auto;max-height:400px;overflow-y:auto" id="cartera-table"></div>
+      </div>
+    </div>
+
     <!-- Resumen Propietarios -->
     <div class="section">
       <div class="chart-card">
@@ -638,6 +647,52 @@ function build(h, rows) {
   });
   ohtml += '</tbody></table>';
   document.getElementById('owner-table').innerHTML = ohtml;
+
+  // ===== SEMÁFORO DE CARTERA =====
+  const noDisp = data.filter(r => (r[I.arr]||'').toUpperCase().trim() !== 'DISPONIBLE' && (r[I.arr]||'').trim() !== '');
+  const estadoCol = I.estado;
+  let alDia = [], debe1 = [], debe2 = [];
+  noDisp.forEach(r => {
+    const est = (r[estadoCol]||'').trim().toUpperCase();
+    if (est === 'X') alDia.push(r);
+    else if (est === 'XX') debe1.push(r);
+    else debe2.push(r);
+  });
+
+  document.getElementById('cartera-kpis').innerHTML = `
+    <div style="flex:1;min-width:140px;background:rgba(34,197,94,0.15);border-radius:12px;padding:14px;border-left:4px solid #22c55e">
+      <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:600">Al día</div>
+      <div style="font-size:28px;font-weight:800;color:#4ade80">${alDia.length}</div>
+      <div style="font-size:11px;color:#64748b">${noDisp.length>0?(alDia.length/noDisp.length*100).toFixed(0):'0'}% del total</div>
+    </div>
+    <div style="flex:1;min-width:140px;background:rgba(234,179,8,0.15);border-radius:12px;padding:14px;border-left:4px solid #eab308">
+      <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:600">Debe 1 mes</div>
+      <div style="font-size:28px;font-weight:800;color:#fcd34d">${debe1.length}</div>
+      <div style="font-size:11px;color:#64748b">Marcados XX</div>
+    </div>
+    <div style="flex:1;min-width:140px;background:rgba(239,68,68,0.15);border-radius:12px;padding:14px;border-left:4px solid #ef4444">
+      <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:600">Debe 2+ meses</div>
+      <div style="font-size:28px;font-weight:800;color:#f87171">${debe2.length}</div>
+      <div style="font-size:11px;color:#64748b">Morosos</div>
+    </div>
+  `;
+
+  // Tabla de morosos (debe 1 mes + debe 2+ meses)
+  const morosos = [...debe2, ...debe1];
+  if (morosos.length > 0) {
+    let chtml = '<table><thead><tr><th>Estado</th><th>Arrendatario</th><th>Ciudad</th><th>Canon</th><th>Propietario</th></tr></thead><tbody>';
+    morosos.forEach(r => {
+      const est = (r[estadoCol]||'').trim().toUpperCase();
+      const badge = est === 'XX'
+        ? '<span class="badge badge-yellow">Debe 1 mes</span>'
+        : '<span class="badge badge-red">Debe 2+ meses</span>';
+      chtml += `<tr><td>${badge}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${fm(pn(r[I.canon]))}</td><td>${r[I.prop]}</td></tr>`;
+    });
+    chtml += '</tbody></table>';
+    document.getElementById('cartera-table').innerHTML = chtml;
+  } else {
+    document.getElementById('cartera-table').innerHTML = '<div style="text-align:center;color:#4ade80;padding:20px;font-weight:600">Todos los arrendatarios están al día</div>';
+  }
 
   // ===== TAB: EFECTIVO =====
   const efctData = data.filter(r => pn(r[I.efct]) > 0);
