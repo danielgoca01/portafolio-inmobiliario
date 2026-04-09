@@ -453,21 +453,21 @@ function build(h, rows) {
   _charts.push(new Chart(document.getElementById('ch-owner'), {
     type:'doughnut',
     data:{labels:ownerSorted.map(e=>e[0]),datasets:[{data:ownerSorted.map(e=>Math.round(e[1].canon)),backgroundColor:COLORS,borderWidth:0}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:11},padding:10,usePointStyle:true,pointStyle:'circle'}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+fm(ctx.raw)}}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#6e6e73',font:{size:11},padding:10,usePointStyle:true,pointStyle:'circle'}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+fm(ctx.raw)}}}}
   }));
 
   // City count bar
   _charts.push(new Chart(document.getElementById('ch-city-count'), {
     type:'bar',
     data:{labels:citySorted.map(e=>e[0]),datasets:[{data:citySorted.map(e=>e[1].n),backgroundColor:COLORS.slice(0,citySorted.length),borderRadius:4,barThickness:14}]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#94a3b8'}},y:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:9}}}}}
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,0.06)'},ticks:{color:'#6e6e73'}},y:{grid:{display:false},ticks:{color:'#1d1d1f',font:{size:9}}}}}
   }));
 
   // City income bar
   _charts.push(new Chart(document.getElementById('ch-city-income'), {
     type:'bar',
     data:{labels:cityByIncome.map(e=>e[0]),datasets:[{data:cityByIncome.map(e=>Math.round(e[1].canon)),backgroundColor:COLORS.slice(0,cityByIncome.length),borderRadius:4,barThickness:14}]},
-    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fm(ctx.raw)}}},scales:{x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#94a3b8',callback:v=>fms(v)}},y:{grid:{display:false},ticks:{color:'#e2e8f0',font:{size:9}}}}}
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fm(ctx.raw)}}},scales:{x:{grid:{color:'rgba(0,0,0,0.06)'},ticks:{color:'#6e6e73',callback:v=>fms(v)}},y:{grid:{display:false},ticks:{color:'#1d1d1f',font:{size:9}}}}}
   }));
 
   // Increment doughnut
@@ -475,7 +475,7 @@ function build(h, rows) {
   _charts.push(new Chart(document.getElementById('ch-incr'), {
     type:'doughnut',
     data:{labels:incrSorted.map(e=>e[0]),datasets:[{data:incrSorted.map(e=>e[1]),backgroundColor:COLORS,borderWidth:0}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:9},padding:8,usePointStyle:true,pointStyle:'circle'}}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#6e6e73',font:{size:9},padding:8,usePointStyle:true,pointStyle:'circle'}}}}
   }));
 
   // ===== TOP 10 =====
@@ -569,7 +569,7 @@ function build(h, rows) {
     pagosChart = new Chart(document.getElementById('ch-pagos'), {
       type:'doughnut',
       data:{labels:['Pagados','Pendientes'],datasets:[{data:[pagados,pendientes],backgroundColor:['#22c55e','#ef4444'],borderWidth:0}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',usePointStyle:true,pointStyle:'circle'}}}}
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#6e6e73',usePointStyle:true,pointStyle:'circle'}}}}
     });
     _charts.push(pagosChart);
 
