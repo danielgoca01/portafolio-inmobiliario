@@ -653,18 +653,18 @@ function build(h, rows) {
     const selLabels = selMeses.map(i => monthCols[i].name.substring(0,3) + ' ' + monthCols[i].year);
 
     activos.forEach(r => {
-      const mesesDebe = [];
+      const mesesDebeDetalle = [];
       let totalDebeArr = 0;
       selMeses.forEach(mi => {
         const raw = (r[monthCols[mi].idx]||'').trim();
         const val = pn(raw);
-        if (raw !== '' && val > 0) { mesesDebe.push(monthCols[mi].name.substring(0,3)); totalDebeArr += val; }
+        if (raw !== '' && val > 0) { mesesDebeDetalle.push({ mes: monthCols[mi].name.substring(0,3), val }); totalDebeArr += val; }
       });
 
-      if (mesesDebe.length > 0) {
+      if (mesesDebeDetalle.length > 0) {
         pendientes++;
         porCobrar += totalDebeArr;
-        deudores.push({ r, meses: mesesDebe.join(', '), totalDebe: totalDebeArr });
+        deudores.push({ r, detalle: mesesDebeDetalle, totalDebe: totalDebeArr });
       } else {
         pagados++;
         ingresado += pn(r[I.neto]);
@@ -691,9 +691,10 @@ function build(h, rows) {
 
     // Tabla de deudores
     if (deudores.length > 0) {
-      let thtml = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Ciudad</th><th>Canon</th><th>Meses que Debe</th><th>Total Deuda</th><th>Prop</th></tr></thead><tbody>';
+      let thtml = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Ciudad</th><th>Deuda por Mes</th><th>Total Deuda</th><th>Prop</th></tr></thead><tbody>';
       deudores.forEach(d => {
-        thtml += `<tr><td>${d.r[I.cod]}</td><td>${d.r[I.arr]}</td><td>${d.r[I.ciudad]}</td><td>${fm(pn(d.r[I.canon]))}</td><td style="color:#c93400;font-size:11px">${d.meses}</td><td style="font-weight:700;color:#d70015">${fm(d.totalDebe)}</td><td>${d.r[I.prop]}</td></tr>`;
+        const deudaMes = d.detalle.map(m => `<span style="font-size:11px">${m.mes}: <b>${fm(m.val)}</b></span>`).join('<br>');
+        thtml += `<tr><td>${d.r[I.cod]}</td><td>${d.r[I.arr]}</td><td>${d.r[I.ciudad]}</td><td style="color:#c93400">${deudaMes}</td><td style="font-weight:700;color:#d70015">${fm(d.totalDebe)}</td><td>${d.r[I.prop]}</td></tr>`;
       });
       thtml += '</tbody></table>';
       tablaEl.innerHTML = thtml;
