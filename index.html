@@ -679,7 +679,7 @@ function build(h, rows) {
       <div style="font-size:11px;color:#64748b">${noDisp.length>0?(debe1.length/noDisp.length*100).toFixed(0):'0'}% del total</div>
     </div>
     <div style="flex:1;min-width:140px;background:rgba(239,68,68,0.15);border-radius:12px;padding:14px;border-left:4px solid #ef4444">
-      <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:600">Debe 2+ meses</div>
+      <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:600">Debe 2 o más meses</div>
       <div style="font-size:28px;font-weight:800;color:#f87171">${debe2.length}</div>
       <div style="font-size:11px;color:#64748b">${noDisp.length>0?(debe2.length/noDisp.length*100).toFixed(0):'0'}% del total</div>
     </div>
@@ -703,7 +703,7 @@ function build(h, rows) {
       const est = (r[estadoCol]||'').trim().toUpperCase();
       const badge = est === 'XX'
         ? '<span class="badge badge-yellow">Debe 1 mes</span>'
-        : '<span class="badge badge-red">Debe 2+ meses</span>';
+        : '<span class="badge badge-red">Debe 2 o más meses</span>';
       // Detectar qué meses debe (celdas con valor = no pagó)
       const mesesDebe = monthCols.filter(mc => {
         const raw = (r[mc.idx]||'').trim();
