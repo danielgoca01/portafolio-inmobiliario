@@ -197,6 +197,15 @@ a.em:hover{text-decoration:underline}
       </div>
     </div>
 
+    <!-- Incrementos de Canon -->
+    <div class="section">
+      <div class="chart-card">
+        <h3>Incrementos de Canon — <select id="incr-mes-selector" style="background:#f5f5f7;color:#1d1d1f;border:1px solid #ddd9d0;border-radius:8px;padding:4px 10px;font-family:'Inter';font-size:13px;font-weight:600;cursor:pointer;outline:none"></select></h3>
+        <div style="display:flex;gap:14px;margin:12px 0;flex-wrap:wrap" id="incr-kpis"></div>
+        <div style="overflow-x:auto;max-height:450px;overflow-y:auto" id="incr-tabla"></div>
+      </div>
+    </div>
+
     <!-- Charts Row 1 -->
     <div class="section">
       <div class="charts">
@@ -692,6 +701,107 @@ function build(h, rows) {
   }
 
   renderMultiMes();
+
+  // ===== INCREMENTOS DE CANON =====
+  const IPC_RATE = 5.10;
+  const MES_MAP = {'ENE':1,'FEB':2,'MAR':3,'ABR':4,'MAY':5,'JUN':6,'JUL':7,'AGO':8,'SEP':9,'OCT':10,'NOV':11,'DIC':12};
+  const MES_NOMBRES = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const mesIdx = ci(h,'MES');
+  const incrIdx = cif(h,'INCR','TIPO INCR');
+  const inicioIdx = cif(h,'INICIO','INICIO CONTRATO');
+
+  function calcIncremento(tipo) {
+    const t = tipo.replace(/\s+/g,'').toUpperCase();
+    if (t.startsWith('SMMLV')) return { pct: null, label: 'A la espera del incremento', espera: true };
+    if (t === '5%') return { pct: 5, label: '5%', espera: false };
+    if (t === 'IPC') return { pct: IPC_RATE, label: `IPC (${IPC_RATE}%)`, espera: false };
+    const match = t.match(/^IPC\+(\d+)/);
+    if (match) {
+      const extra = parseInt(match[1]);
+      const total = IPC_RATE + extra;
+      return { pct: total, label: `IPC+${extra} (${total.toFixed(1)}%)`, espera: false };
+    }
+    return { pct: null, label: tipo, espera: true };
+  }
+
+  // Llenar selector de meses para incrementos
+  const incrMesSel = document.getElementById('incr-mes-selector');
+  const curMonthNum = new Date().getMonth() + 1;
+  for (let m = 1; m <= 12; m++) {
+    const opt = document.createElement('option');
+    opt.value = m;
+    opt.textContent = MES_NOMBRES[m];
+    if (m === curMonthNum) opt.selected = true;
+    incrMesSel.appendChild(opt);
+  }
+
+  function renderIncrementos(mesNum) {
+    const mesAbr = Object.entries(MES_MAP).find(([k,v]) => v === mesNum)?.[0];
+    if (!mesAbr) return;
+
+    // Filtrar locales con incremento en este mes (no disponibles, no X)
+    const locales = data.filter(r => {
+      const m = (r[mesIdx]||'').trim().toUpperCase().replace(/\s+/g,'');
+      const arr = (r[I.arr]||'').toUpperCase().trim();
+      return m === mesAbr && arr !== 'DISPONIBLE' && arr !== '';
+    });
+
+    const kpisEl = document.getElementById('incr-kpis');
+    const tablaEl = document.getElementById('incr-tabla');
+
+    let totalActual = 0, totalNuevo = 0, enEspera = 0;
+    const rows = locales.map(r => {
+      const canon = pn(r[I.canon]);
+      const tipo = (r[incrIdx]||'').trim();
+      const inc = calcIncremento(tipo);
+      const nuevoCanon = inc.espera ? null : Math.round(canon * (1 + inc.pct / 100));
+      const diferencia = nuevoCanon ? nuevoCanon - canon : null;
+      totalActual += canon;
+      if (nuevoCanon) totalNuevo += nuevoCanon; else { totalNuevo += canon; enEspera++; }
+      return { r, canon, tipo, inc, nuevoCanon, diferencia };
+    });
+
+    kpisEl.innerHTML = `
+      <div style="flex:1;min-width:120px;background:rgba(0,122,255,0.06);border-radius:12px;padding:12px;border-left:4px solid #007aff">
+        <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Locales con incremento</div>
+        <div style="font-size:24px;font-weight:800;color:#007aff">${locales.length}</div>
+        <div style="font-size:11px;color:#86868b">${MES_NOMBRES[mesNum]} 2026</div>
+      </div>
+      <div style="flex:1;min-width:120px;background:rgba(52,199,89,0.06);border-radius:12px;padding:12px;border-left:4px solid #34c759">
+        <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Canon actual total</div>
+        <div style="font-size:18px;font-weight:800;color:#248a3d">${fms(totalActual)}</div>
+      </div>
+      <div style="flex:1;min-width:120px;background:rgba(175,82,222,0.06);border-radius:12px;padding:12px;border-left:4px solid #af52de">
+        <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Canon nuevo estimado</div>
+        <div style="font-size:18px;font-weight:800;color:#af52de">${fms(totalNuevo)}</div>
+        <div style="font-size:11px;color:#86868b">${enEspera > 0 ? enEspera + ' en espera de negociación' : ''}</div>
+      </div>
+    `;
+
+    if (locales.length === 0) {
+      tablaEl.innerHTML = '<div style="text-align:center;color:#86868b;padding:20px">No hay incrementos programados en ' + MES_NOMBRES[mesNum] + '</div>';
+      return;
+    }
+
+    let thtml = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Ciudad</th><th>Canon Actual</th><th>Tipo</th><th>% Incremento</th><th>Nuevo Canon</th><th>Diferencia</th><th>Prop</th></tr></thead><tbody>';
+    rows.forEach(({ r, canon, tipo, inc, nuevoCanon, diferencia }) => {
+      const pctCell = inc.espera
+        ? '<span style="color:#c93400;font-size:11px;font-weight:600">Negociación</span>'
+        : '<span style="font-weight:600">' + inc.pct.toFixed(1) + '%</span>';
+      const nuevoCell = inc.espera
+        ? '<span class="badge badge-yellow">A la espera</span>'
+        : '<span style="color:#248a3d;font-weight:600">' + fm(nuevoCanon) + '</span>';
+      const difCell = diferencia
+        ? '<span style="color:#007aff;font-size:11px">+' + fm(diferencia) + '</span>'
+        : '-';
+      thtml += `<tr><td>${r[I.cod]}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${fm(canon)}</td><td style="font-weight:600;font-size:11px">${inc.label}</td><td>${pctCell}</td><td>${nuevoCell}</td><td>${difCell}</td><td>${r[I.prop]}</td></tr>`;
+    });
+    thtml += '</tbody></table>';
+    tablaEl.innerHTML = thtml;
+  }
+
+  renderIncrementos(curMonthNum);
+  incrMesSel.addEventListener('change', e => renderIncrementos(parseInt(e.target.value)));
 
   // ===== DIRECTORY =====
   const dirData = data.filter(r => (r[I.arr]||'').trim() !== '' && (r[I.arr]||'').trim() !== 'DISPONIBLE')
