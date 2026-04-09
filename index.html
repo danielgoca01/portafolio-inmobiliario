@@ -617,7 +617,12 @@ function build(h, rows) {
   const selectedMonths = new Set();
   let pagosMultiChart = null;
 
+  const hoy = new Date();
+  const mesActual = hoy.getMonth(); // 0-indexed
+  const anioActual = hoy.getFullYear();
   monthCols.forEach((mc, i) => {
+    // Ocultar meses futuros (solo mostrar hasta el mes actual)
+    if (mc.year > anioActual || (mc.year === anioActual && mc.month > mesActual)) return;
     const chip = document.createElement('span');
     chip.className = 'mes-chip';
     chip.textContent = mc.name.substring(0,3) + ' ' + mc.year;
