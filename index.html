@@ -25,68 +25,64 @@
 </script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',sans-serif;background:#0a0f1a;color:#e2e8f0;min-height:100vh}
-.header{background:linear-gradient(135deg,#0f1a2e,#1a2744);padding:24px;border-bottom:3px solid #3b82f6}
-.header h1{font-size:24px;font-weight:800;color:#fff}
-.header .sub{color:#64748b;font-size:12px;margin-top:4px}
-.container{max-width:1200px;margin:0 auto;padding:16px}
+body{font-family:'Inter',sans-serif;background:#f5f5f7;color:#1d1d1f;min-height:100vh}
+.header{background:#fff;padding:24px;border-bottom:1px solid #d2d2d7;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.header h1{font-size:24px;font-weight:800;color:#1d1d1f}
+.header .sub{color:#86868b;font-size:12px;margin-top:4px}
+.container{max-width:1200px;margin:0 auto;padding:20px}
 .section{margin-bottom:16px}
-.section-title{font-size:16px;font-weight:700;margin-bottom:12px;color:#f1f5f9}
+.section-title{font-size:16px;font-weight:700;margin-bottom:12px;color:#1d1d1f}
 
 /* KPI Cards */
-.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.kpi{background:rgba(30,41,59,0.8);backdrop-filter:blur(10px);border-radius:14px;padding:18px;border:1px solid rgba(255,255,255,0.08);position:relative;overflow:hidden;transition:transform 0.2s}
-.kpi:hover{transform:scale(1.02)}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.kpi{background:#fff;border-radius:16px;padding:20px;border:1px solid #e5e5ea;position:relative;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.08)}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.kpi.c1::before{background:#3b82f6}.kpi.c2::before{background:#22c55e}.kpi.c3::before{background:#a855f7}
-.kpi.c4::before{background:#f97316}.kpi.c5::before{background:#ef4444}
+.kpi.c1::before{background:#007aff}.kpi.c2::before{background:#34c759}.kpi.c3::before{background:#af52de}
+.kpi.c4::before{background:#ff9500}.kpi.c5::before{background:#ff3b30}
 .kpi .icon{font-size:20px;margin-bottom:4px}
-.kpi .label{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.kpi .label{font-size:10px;color:#86868b;text-transform:uppercase;letter-spacing:1px;font-weight:600}
 .kpi .val{font-size:22px;font-weight:800;margin-top:4px}
-.kpi.c1 .val{color:#60a5fa}.kpi.c2 .val{color:#4ade80}.kpi.c3 .val{color:#c084fc}
-.kpi.c4 .val{color:#fb923c}.kpi.c5 .val{color:#f87171}
-.kpi .det{font-size:11px;color:#64748b;margin-top:2px}
-.kpi .blur-toggle{position:absolute;top:10px;right:10px;cursor:pointer;font-size:14px;opacity:0.4;transition:opacity 0.2s;z-index:2;user-select:none}
-.kpi .blur-toggle:hover{opacity:0.8}
+.kpi.c1 .val{color:#007aff}.kpi.c2 .val{color:#34c759}.kpi.c3 .val{color:#af52de}
+.kpi.c4 .val{color:#ff9500}.kpi.c5 .val{color:#ff3b30}
+.kpi .det{font-size:11px;color:#86868b;margin-top:2px}
+.kpi .blur-toggle{position:absolute;top:12px;right:12px;cursor:pointer;font-size:14px;opacity:0.35;transition:opacity 0.2s;z-index:2;user-select:none}
+.kpi .blur-toggle:hover{opacity:0.7}
 .kpi .kpi-content{transition:filter 0.3s}
 .kpi .kpi-content.blurred .val,.kpi .kpi-content.blurred .det{filter:blur(8px);user-select:none}
 
-/* Occupancy */
-.occ-bar{width:100%;height:28px;background:#1e293b;border-radius:14px;overflow:hidden;margin:8px 0}
-.occ-fill{height:100%;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;transition:width 1.5s ease}
-
 /* Charts */
-.charts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.chart-card{background:rgba(30,41,59,0.7);backdrop-filter:blur(10px);border-radius:14px;padding:16px;border:1px solid rgba(255,255,255,0.06)}
-.chart-card h3{font-size:14px;font-weight:700;margin-bottom:10px}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.chart-card{background:#fff;border-radius:16px;padding:20px;border:1px solid #e5e5ea;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.chart-card h3{font-size:14px;font-weight:700;margin-bottom:10px;color:#1d1d1f}
 .chart-wrap{position:relative;height:280px}
 
 /* Tables */
 table{width:100%;border-collapse:collapse}
-th{background:rgba(51,65,85,0.6);color:#94a3b8;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;padding:10px 8px;text-align:left;font-weight:600}
-td{padding:10px 8px;border-bottom:1px solid rgba(30,41,59,0.8);font-size:12px}
-tr:hover td{background:rgba(51,65,85,0.3)}
+th{background:#f5f5f7;color:#86868b;font-size:10px;text-transform:uppercase;letter-spacing:0.5px;padding:10px 8px;text-align:left;font-weight:600;border-bottom:1px solid #e5e5ea}
+td{padding:10px 8px;border-bottom:1px solid #f0f0f2;font-size:12px;color:#1d1d1f}
+tr:hover td{background:#f5f5f7}
 .badge{padding:3px 8px;border-radius:12px;font-size:10px;font-weight:600}
-.badge-green{background:rgba(34,197,94,0.2);color:#4ade80}
-.badge-red{background:rgba(239,68,68,0.2);color:#f87171}
-.badge-yellow{background:rgba(234,179,8,0.2);color:#fcd34d}
+.badge-green{background:rgba(52,199,89,0.12);color:#248a3d}
+.badge-red{background:rgba(255,59,48,0.12);color:#d70015}
+.badge-yellow{background:rgba(255,149,0,0.12);color:#c93400}
 
 /* Search */
-.search-box{width:100%;padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(30,41,59,0.8);color:#fff;font-size:14px;font-family:'Inter';outline:none;margin-bottom:12px}
-.search-box:focus{border-color:#3b82f6}
-.search-count{font-size:11px;color:#64748b;margin-bottom:8px}
+.search-box{width:100%;padding:12px 16px;border-radius:12px;border:1px solid #d2d2d7;background:#fff;color:#1d1d1f;font-size:14px;font-family:'Inter';outline:none;margin-bottom:12px;transition:border-color 0.2s,box-shadow 0.2s}
+.search-box:focus{border-color:#007aff;box-shadow:0 0 0 3px rgba(0,122,255,0.12)}
+.search-count{font-size:11px;color:#86868b;margin-bottom:8px}
 
 /* WhatsApp & Email links */
-a.wa{color:#25d366;text-decoration:none;font-weight:600;font-size:11px}
+a.wa{color:#34c759;text-decoration:none;font-weight:600;font-size:11px}
 a.wa:hover{text-decoration:underline}
-a.em{color:#60a5fa;text-decoration:none;font-size:11px;word-break:break-all}
+a.em{color:#007aff;text-decoration:none;font-size:11px;word-break:break-all}
 a.em:hover{text-decoration:underline}
 
 /* Full width */
 .full{grid-column:1/-1}
 
 /* Footer */
-.footer{text-align:center;padding:20px;color:#475569;font-size:11px;margin-top:10px}
+.footer{text-align:center;padding:20px;color:#86868b;font-size:11px;margin-top:10px}
 .section{opacity:0;transform:translateY(20px);animation:fadeUp 0.6s ease forwards}
 .section:nth-child(1){animation-delay:0.1s}
 .section:nth-child(2){animation-delay:0.2s}
@@ -99,23 +95,13 @@ a.em:hover{text-decoration:underline}
 .section:nth-child(9){animation-delay:0.9s}
 @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
 
-/* Tabs */
-.tabs{display:flex;gap:0;background:rgba(15,23,42,0.9);border-bottom:2px solid #1e293b;position:sticky;top:0;z-index:100;padding:0 16px}
-.tab{padding:14px 20px;font-size:13px;font-weight:600;color:#64748b;cursor:pointer;border-bottom:3px solid transparent;transition:all 0.2s;white-space:nowrap}
-.tab:hover{color:#94a3b8}
-.tab.active{color:#fff;border-bottom-color:#3b82f6}
-.tab.active.t-efct{border-bottom-color:#4ade80}
-.tab.active.t-total{border-bottom-color:#a855f7}
-.tab-page{display:none}
-.tab-page.active{display:block}
-
 /* Loading */
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh}
-.loading .spinner{width:40px;height:40px;border:4px solid #1e293b;border-top-color:#3b82f6;border-radius:50%;animation:spin 0.8s linear infinite}
+.loading .spinner{width:40px;height:40px;border:4px solid #e5e5ea;border-top-color:#007aff;border-radius:50%;animation:spin 0.8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading p{margin-top:16px;color:#64748b}
-.error{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:40vh;color:#f87171}
-.error button{margin-top:16px;padding:10px 24px;background:#3b82f6;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'Inter'}
+.loading p{margin-top:16px;color:#86868b}
+.error{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:40vh;color:#ff3b30}
+.error button{margin-top:16px;padding:10px 24px;background:#007aff;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'Inter'}
 
 /* Mobile */
 @media(max-width:768px){
@@ -127,8 +113,6 @@ a.em:hover{text-decoration:underline}
   .header{padding:16px}
   .header h1{font-size:20px}
   .chart-wrap{height:260px}
-  .tabs{padding:0 8px}
-  .tab{padding:12px 14px;font-size:12px}
   td,th{padding:8px 6px;font-size:11px}
 }
 </style>
@@ -142,8 +126,8 @@ a.em:hover{text-decoration:underline}
       <div class="sub"><span id="timestamp"></span></div>
     </div>
     <div style="display:flex;gap:10px;align-items:center">
-      <select id="filtro-prop" style="padding:8px 14px;background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:8px;font-size:12px;font-family:'Inter';font-weight:600;cursor:pointer;outline:none"><option value="">👤 Todos</option></select>
-      <button onclick="location.reload()" style="padding:8px 18px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-family:'Inter';font-weight:600;white-space:nowrap">↻ Actualizar</button>
+      <select id="filtro-prop" style="padding:8px 14px;background:#fff;color:#1d1d1f;border:1px solid #d2d2d7;border-radius:10px;font-size:12px;font-family:'Inter';font-weight:600;cursor:pointer;outline:none"><option value="">👤 Todos</option></select>
+      <button onclick="location.reload()" style="padding:8px 18px;background:#007aff;color:#fff;border:none;border-radius:10px;font-size:12px;cursor:pointer;font-family:'Inter';font-weight:600;white-space:nowrap">↻ Actualizar</button>
     </div>
   </div>
 </div>
@@ -177,7 +161,7 @@ a.em:hover{text-decoration:underline}
     <!-- Pagos por Mes -->
     <div class="section">
       <div class="charts">
-        <div class="chart-card"><h3>Estado de Pagos — <select id="mes-selector" style="background:#1e293b;color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:4px 10px;font-family:'Inter';font-size:13px;font-weight:600;cursor:pointer;outline:none"></select></h3><div class="chart-wrap" style="height:200px"><canvas id="ch-pagos"></canvas></div></div>
+        <div class="chart-card"><h3>Estado de Pagos — <select id="mes-selector" style="background:#f5f5f7;color:#1d1d1f;border:1px solid #d2d2d7;border-radius:8px;padding:4px 10px;font-family:'Inter';font-size:13px;font-weight:600;cursor:pointer;outline:none"></select></h3><div class="chart-wrap" style="height:200px"><canvas id="ch-pagos"></canvas></div></div>
         <div class="chart-card"><h3>Resumen Pagos (<span id="resumen-mes"></span>)</h3><div id="pagos-resumen" style="padding:16px"></div></div>
       </div>
     </div>
@@ -587,10 +571,10 @@ function build(h, rows) {
 
     const pct = activos.length > 0 ? (pagados / activos.length * 100).toFixed(1) : '0';
     document.getElementById('pagos-resumen').innerHTML = `
-      <div style="margin-bottom:16px"><div style="font-size:11px;color:#94a3b8">PAGADOS</div><div style="font-size:28px;font-weight:800;color:#4ade80">${pagados}</div><div style="font-size:11px;color:#64748b">${pct}% de ${activos.length} activos</div></div>
-      <div style="margin-bottom:16px"><div style="font-size:11px;color:#94a3b8">PENDIENTES</div><div style="font-size:28px;font-weight:800;color:#f87171">${pendientes}</div></div>
-      <div style="margin-bottom:16px"><div style="font-size:11px;color:#94a3b8">INGRESADO A BANCOS</div><div style="font-size:18px;font-weight:700;color:#4ade80">${fms(ingresadoBancos)}</div><div style="font-size:11px;color:#64748b">${mc.label} = ${fm(ingresadoBancos)}</div></div>
-      <div><div style="font-size:11px;color:#94a3b8">POR COBRAR</div><div style="font-size:18px;font-weight:700;color:#f87171">${fms(porCobrar)}</div><div style="font-size:11px;color:#64748b">${fm(porCobrar)}</div></div>
+      <div style="margin-bottom:16px"><div style="font-size:11px;color:#86868b">PAGADOS</div><div style="font-size:28px;font-weight:800;color:#248a3d">${pagados}</div><div style="font-size:11px;color:#86868b">${pct}% de ${activos.length} activos</div></div>
+      <div style="margin-bottom:16px"><div style="font-size:11px;color:#86868b">PENDIENTES</div><div style="font-size:28px;font-weight:800;color:#d70015">${pendientes}</div></div>
+      <div style="margin-bottom:16px"><div style="font-size:11px;color:#86868b">INGRESADO A BANCOS</div><div style="font-size:18px;font-weight:700;color:#248a3d">${fms(ingresadoBancos)}</div><div style="font-size:11px;color:#86868b">${mc.label} = ${fm(ingresadoBancos)}</div></div>
+      <div><div style="font-size:11px;color:#86868b">POR COBRAR</div><div style="font-size:18px;font-weight:700;color:#d70015">${fms(porCobrar)}</div><div style="font-size:11px;color:#86868b">${fm(porCobrar)}</div></div>
     `;
   }
 
@@ -664,30 +648,30 @@ function build(h, rows) {
 
   const deudaTotal = debe2.reduce((sum, r) => sum + pn(r[I.pagar]), 0);
   document.getElementById('cartera-kpis').innerHTML = `
-    <div style="flex:1;min-width:140px;background:rgba(34,197,94,0.15);border-radius:12px;padding:14px;border-left:4px solid #22c55e">
-      <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:600">Al día</div>
-      <div style="font-size:28px;font-weight:800;color:#4ade80">${alDia.length}</div>
-      <div style="font-size:11px;color:#64748b">${noDisp.length>0?(alDia.length/noDisp.length*100).toFixed(0):'0'}% del total</div>
+    <div style="flex:1;min-width:140px;background:rgba(52,199,89,0.08);border-radius:12px;padding:14px;border-left:4px solid #34c759">
+      <div style="font-size:10px;color:#86868b;text-transform:uppercase;letter-spacing:1px;font-weight:600">Al día</div>
+      <div style="font-size:28px;font-weight:800;color:#248a3d">${alDia.length}</div>
+      <div style="font-size:11px;color:#86868b">${noDisp.length>0?(alDia.length/noDisp.length*100).toFixed(0):'0'}% del total</div>
     </div>
-    <div style="flex:1;min-width:140px;background:rgba(234,179,8,0.15);border-radius:12px;padding:14px;border-left:4px solid #eab308">
-      <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:600">Debe 1 mes (${['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][new Date().getMonth()]})</div>
-      <div style="font-size:28px;font-weight:800;color:#fcd34d">${debe1.length}</div>
-      <div style="font-size:11px;color:#64748b">${noDisp.length>0?(debe1.length/noDisp.length*100).toFixed(0):'0'}% del total</div>
+    <div style="flex:1;min-width:140px;background:rgba(255,149,0,0.08);border-radius:12px;padding:14px;border-left:4px solid #ff9500">
+      <div style="font-size:10px;color:#86868b;text-transform:uppercase;letter-spacing:1px;font-weight:600">Debe 1 mes (${['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][new Date().getMonth()]})</div>
+      <div style="font-size:28px;font-weight:800;color:#c93400">${debe1.length}</div>
+      <div style="font-size:11px;color:#86868b">${noDisp.length>0?(debe1.length/noDisp.length*100).toFixed(0):'0'}% del total</div>
     </div>
-    <div style="flex:1;min-width:140px;background:rgba(239,68,68,0.15);border-radius:12px;padding:14px;border-left:4px solid #ef4444">
-      <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:600">Debe 2 o más meses</div>
-      <div style="font-size:28px;font-weight:800;color:#f87171">${debe2.length}</div>
-      <div style="font-size:11px;color:#64748b">${noDisp.length>0?(debe2.length/noDisp.length*100).toFixed(0):'0'}% del total</div>
+    <div style="flex:1;min-width:140px;background:rgba(255,59,48,0.08);border-radius:12px;padding:14px;border-left:4px solid #ff3b30">
+      <div style="font-size:10px;color:#86868b;text-transform:uppercase;letter-spacing:1px;font-weight:600">Debe 2 o más meses</div>
+      <div style="font-size:28px;font-weight:800;color:#d70015">${debe2.length}</div>
+      <div style="font-size:11px;color:#86868b">${noDisp.length>0?(debe2.length/noDisp.length*100).toFixed(0):'0'}% del total</div>
     </div>
-    <div style="flex:1;min-width:140px;background:rgba(59,130,246,0.15);border-radius:12px;padding:14px;border-left:4px solid #3b82f6">
-      <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:600">Total</div>
-      <div style="font-size:28px;font-weight:800;color:#60a5fa">${noDisp.length}</div>
-      <div style="font-size:11px;color:#64748b">${debe1.length + debe2.length} deben (${noDisp.length>0?((debe1.length+debe2.length)/noDisp.length*100).toFixed(0):'0'}%)</div>
+    <div style="flex:1;min-width:140px;background:rgba(0,122,255,0.06);border-radius:12px;padding:14px;border-left:4px solid #007aff">
+      <div style="font-size:10px;color:#86868b;text-transform:uppercase;letter-spacing:1px;font-weight:600">Total</div>
+      <div style="font-size:28px;font-weight:800;color:#007aff">${noDisp.length}</div>
+      <div style="font-size:11px;color:#86868b">${debe1.length + debe2.length} deben (${noDisp.length>0?((debe1.length+debe2.length)/noDisp.length*100).toFixed(0):'0'}%)</div>
     </div>
-    <div style="flex:1;min-width:140px;background:rgba(239,68,68,0.1);border-radius:12px;padding:14px;border-left:4px solid #ef4444">
-      <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;font-weight:600">Total Deuda</div>
-      <div style="font-size:22px;font-weight:800;color:#f87171">${fms(deudaTotal)}</div>
-      <div style="font-size:11px;color:#64748b">${fm(deudaTotal)}</div>
+    <div style="flex:1;min-width:140px;background:rgba(255,59,48,0.06);border-radius:12px;padding:14px;border-left:4px solid #ff3b30">
+      <div style="font-size:10px;color:#86868b;text-transform:uppercase;letter-spacing:1px;font-weight:600">Total Deuda</div>
+      <div style="font-size:22px;font-weight:800;color:#d70015">${fms(deudaTotal)}</div>
+      <div style="font-size:11px;color:#86868b">${fm(deudaTotal)}</div>
     </div>
   `;
 
