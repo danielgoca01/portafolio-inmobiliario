@@ -95,6 +95,11 @@ a.em:hover{text-decoration:underline}
 .section:nth-child(9){animation-delay:0.9s}
 @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
 
+/* Month chips */
+.mes-chip{padding:6px 12px;border-radius:20px;font-size:11px;font-weight:600;font-family:'Inter';cursor:pointer;border:1px solid #ddd9d0;background:#faf9f7;color:#6e6e73;transition:all 0.2s;user-select:none}
+.mes-chip:hover{border-color:#007aff;color:#007aff}
+.mes-chip.active{background:#007aff;color:#fff;border-color:#007aff}
+
 /* Loading */
 .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh}
 .loading .spinner{width:40px;height:40px;border:4px solid #ddd9d0;border-top-color:#007aff;border-radius:50%;animation:spin 0.8s linear infinite}
@@ -176,6 +181,19 @@ a.em:hover{text-decoration:underline}
         <h3>Estado de Cartera</h3>
         <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap" id="cartera-kpis"></div>
         <div style="overflow-x:auto;max-height:400px;overflow-y:auto" id="cartera-table"></div>
+      </div>
+    </div>
+
+    <!-- Consulta de Pagos Multi-Mes -->
+    <div class="section">
+      <div class="chart-card">
+        <h3>Consulta de Pagos por Mes</h3>
+        <div style="margin-bottom:14px;display:flex;flex-wrap:wrap;gap:6px" id="mes-chips"></div>
+        <div class="charts" style="margin-top:8px">
+          <div><div class="chart-wrap" style="height:220px"><canvas id="ch-pagos-multi"></canvas></div></div>
+          <div id="pagos-multi-resumen" style="padding:16px"></div>
+        </div>
+        <div style="overflow-x:auto;max-height:350px;overflow-y:auto;margin-top:12px" id="pagos-multi-tabla"></div>
       </div>
     </div>
 
@@ -584,6 +602,96 @@ function build(h, rows) {
 
   renderPagos(defaultIdx);
   selector.addEventListener('change', e => renderPagos(parseInt(e.target.value)));
+
+  // ===== CONSULTA MULTI-MES =====
+  const chipsContainer = document.getElementById('mes-chips');
+  const selectedMonths = new Set();
+  let pagosMultiChart = null;
+
+  monthCols.forEach((mc, i) => {
+    const chip = document.createElement('span');
+    chip.className = 'mes-chip';
+    chip.textContent = mc.name.substring(0,3) + ' ' + mc.year;
+    chip.dataset.idx = i;
+    chip.addEventListener('click', () => {
+      if (selectedMonths.has(i)) { selectedMonths.delete(i); chip.classList.remove('active'); }
+      else { selectedMonths.add(i); chip.classList.add('active'); }
+      renderMultiMes();
+    });
+    chipsContainer.appendChild(chip);
+  });
+
+  function renderMultiMes() {
+    const resumenEl = document.getElementById('pagos-multi-resumen');
+    const tablaEl = document.getElementById('pagos-multi-tabla');
+
+    if (selectedMonths.size === 0) {
+      if (pagosMultiChart) { pagosMultiChart.destroy(); _charts = _charts.filter(c => c !== pagosMultiChart); pagosMultiChart = null; }
+      resumenEl.innerHTML = '<div style="text-align:center;color:#86868b;padding:20px">Selecciona uno o más meses arriba</div>';
+      tablaEl.innerHTML = '';
+      return;
+    }
+
+    const activos = data.filter(r => {
+      const arr = (r[I.arr]||'').toUpperCase().trim();
+      return arr !== 'DISPONIBLE' && arr !== '';
+    });
+
+    // Un arrendatario "debe" si tiene valor en ALGUNO de los meses seleccionados
+    let pagados = 0, pendientes = 0, ingresado = 0, porCobrar = 0;
+    const deudores = [];
+    const selMeses = [...selectedMonths].sort((a,b) => a - b);
+    const selLabels = selMeses.map(i => monthCols[i].name.substring(0,3) + ' ' + monthCols[i].year);
+
+    activos.forEach(r => {
+      const mesesDebe = [];
+      selMeses.forEach(mi => {
+        const raw = (r[monthCols[mi].idx]||'').trim();
+        if (raw !== '' && pn(raw) > 0) mesesDebe.push(monthCols[mi].name.substring(0,3));
+      });
+
+      if (mesesDebe.length > 0) {
+        pendientes++;
+        porCobrar += pn(r[I.neto]);
+        deudores.push({ r, meses: mesesDebe.join(', ') });
+      } else {
+        pagados++;
+        ingresado += pn(r[I.neto]);
+      }
+    });
+
+    // Chart
+    if (pagosMultiChart) { pagosMultiChart.destroy(); _charts = _charts.filter(c => c !== pagosMultiChart); }
+    pagosMultiChart = new Chart(document.getElementById('ch-pagos-multi'), {
+      type:'doughnut',
+      data:{labels:['Pagados','Pendientes'],datasets:[{data:[pagados,pendientes],backgroundColor:['#34c759','#ff3b30'],borderWidth:0}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#6e6e73',usePointStyle:true,pointStyle:'circle'}}}}
+    });
+    _charts.push(pagosMultiChart);
+
+    const pct = activos.length > 0 ? (pagados / activos.length * 100).toFixed(1) : '0';
+    resumenEl.innerHTML = `
+      <div style="font-size:11px;color:#86868b;margin-bottom:8px;font-weight:600">${selLabels.join(' + ')}</div>
+      <div style="margin-bottom:14px"><div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Pagados</div><div style="font-size:26px;font-weight:800;color:#248a3d">${pagados}</div><div style="font-size:11px;color:#86868b">${pct}% de ${activos.length}</div></div>
+      <div style="margin-bottom:14px"><div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Pendientes</div><div style="font-size:26px;font-weight:800;color:#d70015">${pendientes}</div></div>
+      <div style="margin-bottom:14px"><div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Ingresado a Bancos</div><div style="font-size:16px;font-weight:700;color:#248a3d">${fms(ingresado)}</div></div>
+      <div><div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Por Cobrar</div><div style="font-size:16px;font-weight:700;color:#d70015">${fms(porCobrar)}</div></div>
+    `;
+
+    // Tabla de deudores
+    if (deudores.length > 0) {
+      let thtml = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Ciudad</th><th>Tot. a Pagar</th><th>Meses que Debe</th><th>Prop</th></tr></thead><tbody>';
+      deudores.forEach(d => {
+        thtml += `<tr><td>${d.r[I.cod]}</td><td>${d.r[I.arr]}</td><td>${d.r[I.ciudad]}</td><td>${fm(pn(d.r[I.pagar]))}</td><td style="color:#c93400;font-size:11px">${d.meses}</td><td>${d.r[I.prop]}</td></tr>`;
+      });
+      thtml += '</tbody></table>';
+      tablaEl.innerHTML = thtml;
+    } else {
+      tablaEl.innerHTML = '<div style="text-align:center;color:#248a3d;padding:16px;font-weight:600">Todos pagaron en los meses seleccionados</div>';
+    }
+  }
+
+  renderMultiMes();
 
   // ===== DIRECTORY =====
   const dirData = data.filter(r => (r[I.arr]||'').trim() !== '' && (r[I.arr]||'').trim() !== 'DISPONIBLE')
