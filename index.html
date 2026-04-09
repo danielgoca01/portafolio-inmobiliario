@@ -469,7 +469,7 @@ function build(h, rows) {
   _charts.push(new Chart(document.getElementById('ch-owner'), {
     type:'doughnut',
     data:{labels:ownerSorted.map(e=>e[0]),datasets:[{data:ownerSorted.map(e=>Math.round(e[1].canon)),backgroundColor:COLORS,borderWidth:0}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:11},padding:10}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+fm(ctx.raw)}}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:11},padding:10,usePointStyle:true,pointStyle:'circle'}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+fm(ctx.raw)}}}}
   }));
 
   // City count bar
@@ -491,7 +491,7 @@ function build(h, rows) {
   _charts.push(new Chart(document.getElementById('ch-incr'), {
     type:'doughnut',
     data:{labels:incrSorted.map(e=>e[0]),datasets:[{data:incrSorted.map(e=>e[1]),backgroundColor:COLORS,borderWidth:0}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:9},padding:8}}}}
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',font:{size:9},padding:8,usePointStyle:true,pointStyle:'circle'}}}}
   }));
 
   // ===== TOP 10 =====
@@ -585,7 +585,7 @@ function build(h, rows) {
     pagosChart = new Chart(document.getElementById('ch-pagos'), {
       type:'doughnut',
       data:{labels:['Pagados','Pendientes'],datasets:[{data:[pagados,pendientes],backgroundColor:['#22c55e','#ef4444'],borderWidth:0}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8'}}}}
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8',usePointStyle:true,pointStyle:'circle'}}}}
     });
     _charts.push(pagosChart);
 
