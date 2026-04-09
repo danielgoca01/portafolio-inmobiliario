@@ -598,7 +598,7 @@ function build(h, rows) {
       (r[I.nombre]||'').toLowerCase().includes(f)
     ) : dirData;
 
-    const shown = filtered.slice(0, 25);
+    const shown = filtered;
     document.getElementById('search-count').textContent = `Mostrando ${shown.length} de ${filtered.length} arrendatarios`;
 
     let html = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Ciudad</th><th>Canon</th><th>Contacto</th></tr></thead><tbody>';
