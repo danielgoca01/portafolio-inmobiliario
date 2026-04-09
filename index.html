@@ -691,9 +691,9 @@ function build(h, rows) {
 
     // Tabla de deudores
     if (deudores.length > 0) {
-      let thtml = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Ciudad</th><th>Meses que Debe</th><th>Total Deuda</th><th>Prop</th></tr></thead><tbody>';
+      let thtml = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Ciudad</th><th>Canon</th><th>Meses que Debe</th><th>Total Deuda</th><th>Prop</th></tr></thead><tbody>';
       deudores.forEach(d => {
-        thtml += `<tr><td>${d.r[I.cod]}</td><td>${d.r[I.arr]}</td><td>${d.r[I.ciudad]}</td><td style="color:#c93400;font-size:11px">${d.meses}</td><td style="font-weight:700;color:#d70015">${fm(d.totalDebe)}</td><td>${d.r[I.prop]}</td></tr>`;
+        thtml += `<tr><td>${d.r[I.cod]}</td><td>${d.r[I.arr]}</td><td>${d.r[I.ciudad]}</td><td>${fm(pn(d.r[I.canon]))}</td><td style="color:#c93400;font-size:11px">${d.meses}</td><td style="font-weight:700;color:#d70015">${fm(d.totalDebe)}</td><td>${d.r[I.prop]}</td></tr>`;
       });
       thtml += '</tbody></table>';
       tablaEl.innerHTML = thtml;
