@@ -207,7 +207,7 @@ a.em:hover{text-decoration:underline}
     <div class="section">
       <div class="chart-card">
         <h3>Directorio de Arrendatarios</h3>
-        <input type="text" class="search-box" id="search" placeholder="Buscar arrendatario, ciudad, establecimiento...">
+        <input type="text" class="search-box" id="search" placeholder="Buscar por propietario, arrendatario, ciudad, código...">
         <div class="search-count" id="search-count"></div>
         <div style="overflow-x:auto;max-height:400px;overflow-y:auto" id="directory"></div>
       </div>
@@ -595,13 +595,15 @@ function build(h, rows) {
       (r[I.arr]||'').toLowerCase().includes(f) ||
       (r[I.ciudad]||'').toLowerCase().includes(f) ||
       (r[I.estab]||'').toLowerCase().includes(f) ||
-      (r[I.nombre]||'').toLowerCase().includes(f)
+      (r[I.nombre]||'').toLowerCase().includes(f) ||
+      (r[I.prop]||'').toLowerCase().includes(f) ||
+      (r[I.cod]||'').toLowerCase().includes(f)
     ) : dirData;
 
     const shown = filtered;
     document.getElementById('search-count').textContent = `Mostrando ${shown.length} de ${filtered.length} arrendatarios`;
 
-    let html = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Ciudad</th><th>Canon</th><th>Contacto</th></tr></thead><tbody>';
+    let html = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Ciudad</th><th>Prop</th><th>Canon</th><th>Contacto</th></tr></thead><tbody>';
     shown.forEach(r => {
       const tel = (r[I.tel]||'').trim();
       const email = (r[I.correo]||'').trim();
@@ -610,7 +612,7 @@ function build(h, rows) {
       if (email && email !== 'X' && email !== '') contacto += (contacto?'<br>':'') + `<a class="em" href="mailto:${email.split('/')[0].trim()}">✉️ ${email.split('/')[0].trim()}</a>`;
       if (!contacto) contacto = '<span style="color:#475569">Sin datos</span>';
 
-      html += `<tr><td>${r[I.cod]}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${fm(pn(r[I.canon]))}</td><td>${contacto}</td></tr>`;
+      html += `<tr><td>${r[I.cod]}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${r[I.prop]}</td><td>${fm(pn(r[I.canon]))}</td><td>${contacto}</td></tr>`;
     });
     html += '</tbody></table>';
     document.getElementById('directory').innerHTML = html;
