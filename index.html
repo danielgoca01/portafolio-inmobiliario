@@ -445,12 +445,14 @@ async function load() {
     _allHeaders = all[0];
     _allRows = all.slice(1);
 
-    // Llenar dropdown de propietarios
+    // Llenar dropdown de propietarios (solo la primera vez)
     const propIdx = ci(_allHeaders, 'PROP');
     const props = [...new Set(_allRows.map(r => (r[propIdx]||'').trim()).filter(p => p))].sort();
     const sel = document.getElementById('filtro-prop');
-    props.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; sel.appendChild(o); });
-    sel.addEventListener('change', () => applyFilter());
+    if (sel.options.length <= 1) {
+      props.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; sel.appendChild(o); });
+      sel.addEventListener('change', () => applyFilter());
+    }
 
     applyFilter();
 
@@ -461,6 +463,7 @@ async function load() {
   }
 }
 
+let _buildCount = 0;
 function applyFilter() {
   const prop = document.getElementById('filtro-prop').value;
   const propIdx = ci(_allHeaders, 'PROP');
@@ -470,7 +473,19 @@ function applyFilter() {
   _charts.forEach(c => c.destroy());
   _charts = [];
 
+  // Limpiar selectores para re-llenarlos (excepto la primera carga que ya están vacíos)
+  if (_buildCount > 0) {
+    ['mes-selector','e-mes-selector','tg-mes-selector'].forEach(id => {
+      const s = document.getElementById(id); if(s) s.innerHTML = '';
+    });
+    ['incr-mes-selector','e-incr-mes-selector','tg-incr-mes-selector'].forEach(id => {
+      const s = document.getElementById(id); if(s) s.innerHTML = '';
+    });
+    const chips = document.getElementById('mes-chips'); if(chips) chips.innerHTML = '';
+  }
+
   build(_allHeaders, filtered);
+  _buildCount++;
 }
 
 function build(h, rows) {
@@ -704,7 +719,7 @@ function build(h, rows) {
   }
 
   renderPagos(defaultIdx);
-  selector.addEventListener('change', e => renderPagos(parseInt(e.target.value)));
+  selector.onchange = e => renderPagos(parseInt(e.target.value));
 
   // ===== CONSULTA MULTI-MES =====
   const chipsContainer = document.getElementById('mes-chips');
@@ -902,7 +917,7 @@ function build(h, rows) {
   }
 
   renderIncrementos(curMonthNum);
-  incrMesSel.addEventListener('change', e => renderIncrementos(parseInt(e.target.value)));
+  incrMesSel.onchange = e => renderIncrementos(parseInt(e.target.value));
 
   // ===== DIRECTORY =====
   const dirData = data.filter(r => (r[I.arr]||'').trim() !== '' && (r[I.arr]||'').trim() !== 'DISPONIBLE')
@@ -937,7 +952,7 @@ function build(h, rows) {
     document.getElementById('directory').innerHTML = html;
   }
   renderDir('');
-  document.getElementById('search').addEventListener('input', e => renderDir(e.target.value));
+  document.getElementById('search').oninput = e => renderDir(e.target.value);
 
   // ===== VACANTES =====
   const vacantes = data.filter(r => (r[I.arr]||'').toUpperCase().trim() === 'DISPONIBLE' || (r[I.estado]||'').toUpperCase().trim() === 'DISPONIBLE');
@@ -1079,7 +1094,7 @@ function build(h, rows) {
       <div><div style="font-size:11px;color:#86868b">POR COBRAR</div><div style="font-size:18px;font-weight:700;color:#d70015">${fms(ePorCobrar)}</div></div>`;
   }
   renderEfctPagos(defaultIdx);
-  eMesSel.addEventListener('change', e => renderEfctPagos(parseInt(e.target.value)));
+  eMesSel.onchange = e => renderEfctPagos(parseInt(e.target.value));
 
   // Efectivo - Cartera
   let eAlDia = 0, eDebe1 = 0, eDebe2 = 0, eDeuda = 0;
@@ -1122,7 +1137,7 @@ function build(h, rows) {
     it += '</tbody></table>'; document.getElementById('e-incr-tabla').innerHTML = it;
   }
   renderEfctIncr(curMonthNum);
-  eIncrSel.addEventListener('change', e => renderEfctIncr(parseInt(e.target.value)));
+  eIncrSel.onchange = e => renderEfctIncr(parseInt(e.target.value));
 
   // Efectivo - Directorio
   const efctSorted = efctData.sort((a,b) => pn(a[I.cod]) - pn(b[I.cod]));
@@ -1135,7 +1150,7 @@ function build(h, rows) {
     eh += '</tbody></table>'; document.getElementById('e-directory').innerHTML = eh;
   }
   renderEfctDir('');
-  document.getElementById('e-search').addEventListener('input', e => renderEfctDir(e.target.value));
+  document.getElementById('e-search').oninput = e => renderEfctDir(e.target.value);
 
   // Efectivo - Resumen propietario
   let eohtml = '<table><thead><tr><th>Propietario</th><th>Locales</th><th>Efectivo Total</th><th>% Total</th></tr></thead><tbody>';
@@ -1208,7 +1223,7 @@ function build(h, rows) {
       <div><div style="font-size:11px;color:#86868b">POR COBRAR (TOTAL)</div><div style="font-size:18px;font-weight:700;color:#d70015">${fms(tPC)}</div></div>`;
   }
   renderTgPagos(defaultIdx);
-  tgMesSel.addEventListener('change', e => renderTgPagos(parseInt(e.target.value)));
+  tgMesSel.onchange = e => renderTgPagos(parseInt(e.target.value));
 
   // TG - Cartera
   let tgAlDia = 0, tgDebe1 = 0, tgDebe2 = 0, tgDeuda = 0;
@@ -1250,7 +1265,7 @@ function build(h, rows) {
     it += '</tbody></table>'; document.getElementById('tg-incr-tabla').innerHTML = it;
   }
   renderTgIncr(curMonthNum);
-  tgIncrSel.addEventListener('change', e => renderTgIncr(parseInt(e.target.value)));
+  tgIncrSel.onchange = e => renderTgIncr(parseInt(e.target.value));
 
   // TG - Directorio
   const tgDirData = data.filter(r => (r[I.arr]||'').trim() !== '' && (r[I.arr]||'').trim() !== 'DISPONIBLE').sort((a,b) => pn(a[I.cod]) - pn(b[I.cod]));
@@ -1263,7 +1278,7 @@ function build(h, rows) {
     th += '</tbody></table>'; document.getElementById('tg-directory').innerHTML = th;
   }
   renderTgDir('');
-  document.getElementById('tg-search').addEventListener('input', e => renderTgDir(e.target.value));
+  document.getElementById('tg-search').oninput = e => renderTgDir(e.target.value);
 
   // TG - Resumen propietario
   let tgohtml = '<table><thead><tr><th>Propietario</th><th>Locales</th><th>Neto</th><th>Efectivo</th><th>Tot. Pagar</th><th>%</th></tr></thead><tbody>';
