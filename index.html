@@ -152,9 +152,15 @@ a.em:hover{text-decoration:underline}
   </div>
   <div id="content" style="display:none">
 
+    <!-- TABS BAR -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('fiscal',this)">📊 Fiscal</div>
+      <div class="tab t-efct" onclick="switchTab('efectivo',this)">💸 Efectivo</div>
+      <div class="tab t-total" onclick="switchTab('total',this)">💎 Total General</div>
+    </div>
 
-    <!-- TAB: GENERAL -->
-    <div class="tab-page active" id="page-general">
+    <!-- TAB: FISCAL -->
+    <div class="tab-page active" id="page-fiscal">
 
     <!-- KPIs -->
     <div class="section">
@@ -256,7 +262,85 @@ a.em:hover{text-decoration:underline}
       </div>
     </div>
 
-    </div><!-- end page-general -->
+    </div><!-- end page-fiscal -->
+
+    <!-- TAB: EFECTIVO -->
+    <div class="tab-page" id="page-efectivo">
+      <div class="section"><div class="kpis">
+        <div class="kpi c2"><span class="blur-toggle" onclick="toggleBlur(this)">👁️</span><div class="icon">💸</div><div class="kpi-content blurred"><div class="label">Total Efectivo</div><div class="val" style="color:#34c759" id="e-total">$0</div><div class="det" id="e-total-det"></div></div></div>
+        <div class="kpi c2"><div class="icon">👥</div><div class="label">Locales con Efectivo</div><div class="val" style="color:#34c759" id="e-count">0</div><div class="det">Reciben pago en efectivo</div></div>
+        <div class="kpi c2"><span class="blur-toggle" onclick="toggleBlur(this)">👁️</span><div class="icon">📊</div><div class="kpi-content blurred"><div class="label">Promedio por Local</div><div class="val" style="color:#34c759" id="e-avg">$0</div><div class="det" id="e-avg-det"></div></div></div>
+      </div></div>
+      <div class="section"><div class="charts">
+        <div class="chart-card"><h3>Estado de Pagos — <select id="e-mes-selector" style="background:#f5f5f7;color:#1d1d1f;border:1px solid #ddd9d0;border-radius:8px;padding:4px 10px;font-family:'Inter';font-size:13px;font-weight:600;cursor:pointer;outline:none"></select></h3><div class="chart-wrap" style="height:200px"><canvas id="e-ch-pagos"></canvas></div></div>
+        <div class="chart-card"><h3>Resumen Pagos (<span id="e-resumen-mes"></span>)</h3><div id="e-pagos-resumen" style="padding:16px"></div></div>
+      </div></div>
+      <div class="section"><div class="chart-card">
+        <h3>Estado de Cartera — Efectivo</h3>
+        <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap" id="e-cartera-kpis"></div>
+        <div style="overflow-x:auto;max-height:400px;overflow-y:auto" id="e-cartera-table"></div>
+      </div></div>
+      <div class="section"><div class="charts">
+        <div class="chart-card"><h3 style="color:#34c759">Efectivo por Propietario</h3><div class="chart-wrap"><canvas id="e-ch-owner"></canvas></div></div>
+        <div class="chart-card"><h3 style="color:#34c759">Efectivo por Ciudad</h3><div class="chart-wrap"><canvas id="e-ch-city"></canvas></div></div>
+      </div></div>
+      <div class="section"><div class="chart-card">
+        <h3>Incrementos de Canon — <select id="e-incr-mes-selector" style="background:#f5f5f7;color:#1d1d1f;border:1px solid #ddd9d0;border-radius:8px;padding:4px 10px;font-family:'Inter';font-size:13px;font-weight:600;cursor:pointer;outline:none"></select></h3>
+        <div style="display:flex;gap:14px;margin:12px 0;flex-wrap:wrap" id="e-incr-kpis"></div>
+        <div style="overflow-x:auto;max-height:450px;overflow-y:auto" id="e-incr-tabla"></div>
+      </div></div>
+      <div class="section"><div class="chart-card">
+        <h3 style="color:#34c759">Detalle Efectivo por Arrendatario</h3>
+        <input type="text" class="search-box" id="e-search" placeholder="Buscar por propietario, arrendatario, ciudad, código...">
+        <div class="search-count" id="e-search-count"></div>
+        <div style="overflow-x:auto;max-height:400px;overflow-y:auto" id="e-directory"></div>
+      </div></div>
+      <div class="section"><div class="chart-card">
+        <h3>Resumen por Propietario — Efectivo</h3>
+        <div style="overflow-x:auto" id="e-owner-table"></div>
+      </div></div>
+    </div><!-- end page-efectivo -->
+
+    <!-- TAB: TOTAL GENERAL -->
+    <div class="tab-page" id="page-total">
+      <div class="section"><div class="kpis">
+        <div class="kpi c3"><span class="blur-toggle" onclick="toggleBlur(this)">👁️</span><div class="icon">💎</div><div class="kpi-content blurred"><div class="label">Total General / Neto + Efectivo</div><div class="val" style="color:#af52de" id="tg-total">$0</div><div class="det" id="tg-total-det"></div></div></div>
+        <div class="kpi c3"><span class="blur-toggle" onclick="toggleBlur(this)">👁️</span><div class="icon">💵</div><div class="kpi-content blurred"><div class="label">Total Neto</div><div class="val" style="color:#af52de" id="tg-neto">$0</div><div class="det" id="tg-neto-det"></div></div></div>
+        <div class="kpi c2"><span class="blur-toggle" onclick="toggleBlur(this)">👁️</span><div class="icon">💸</div><div class="kpi-content blurred"><div class="label">Total Efectivo</div><div class="val" style="color:#34c759" id="tg-efct">$0</div><div class="det" id="tg-efct-det"></div></div></div>
+      </div></div>
+      <div class="section"><div class="charts">
+        <div class="chart-card"><h3>Estado de Pagos — <select id="tg-mes-selector" style="background:#f5f5f7;color:#1d1d1f;border:1px solid #ddd9d0;border-radius:8px;padding:4px 10px;font-family:'Inter';font-size:13px;font-weight:600;cursor:pointer;outline:none"></select></h3><div class="chart-wrap" style="height:200px"><canvas id="tg-ch-pagos"></canvas></div></div>
+        <div class="chart-card"><h3>Resumen Pagos (<span id="tg-resumen-mes"></span>)</h3><div id="tg-pagos-resumen" style="padding:16px"></div></div>
+      </div></div>
+      <div class="section"><div class="chart-card">
+        <h3>Estado de Cartera — Total General</h3>
+        <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap" id="tg-cartera-kpis"></div>
+        <div style="overflow-x:auto;max-height:400px;overflow-y:auto" id="tg-cartera-table"></div>
+      </div></div>
+      <div class="section"><div class="charts">
+        <div class="chart-card"><h3 style="color:#af52de">Total General por Propietario</h3><div class="chart-wrap"><canvas id="tg-ch-owner"></canvas></div></div>
+        <div class="chart-card"><h3 style="color:#af52de">Total General por Ciudad</h3><div class="chart-wrap"><canvas id="tg-ch-city"></canvas></div></div>
+      </div></div>
+      <div class="section"><div class="chart-card">
+        <h3 style="color:#af52de">Comparativo Neto vs Efectivo por Propietario</h3>
+        <div class="chart-wrap" style="height:320px"><canvas id="tg-ch-compare"></canvas></div>
+      </div></div>
+      <div class="section"><div class="chart-card">
+        <h3>Incrementos de Canon — <select id="tg-incr-mes-selector" style="background:#f5f5f7;color:#1d1d1f;border:1px solid #ddd9d0;border-radius:8px;padding:4px 10px;font-family:'Inter';font-size:13px;font-weight:600;cursor:pointer;outline:none"></select></h3>
+        <div style="display:flex;gap:14px;margin:12px 0;flex-wrap:wrap" id="tg-incr-kpis"></div>
+        <div style="overflow-x:auto;max-height:450px;overflow-y:auto" id="tg-incr-tabla"></div>
+      </div></div>
+      <div class="section"><div class="chart-card">
+        <h3>Directorio Completo</h3>
+        <input type="text" class="search-box" id="tg-search" placeholder="Buscar por propietario, arrendatario, ciudad, código...">
+        <div class="search-count" id="tg-search-count"></div>
+        <div style="overflow-x:auto;max-height:400px;overflow-y:auto" id="tg-directory"></div>
+      </div></div>
+      <div class="section"><div class="chart-card">
+        <h3>Resumen por Propietario — Total General</h3>
+        <div style="overflow-x:auto" id="tg-owner-table"></div>
+      </div></div>
+    </div><!-- end page-total -->
 
 
   </div>
@@ -927,6 +1011,254 @@ function build(h, rows) {
   } else {
     document.getElementById('cartera-table').innerHTML = '<div style="text-align:center;color:#4ade80;padding:20px;font-weight:600">Todos los arrendatarios están al día</div>';
   }
+
+  // ===== TAB: EFECTIVO =====
+  const efctData = data.filter(r => pn(r[I.efct]) > 0);
+  const efctTotal = efctData.reduce((s,r) => s + pn(r[I.efct]), 0);
+  const efctCount = efctData.length;
+  const efctAvg = efctCount > 0 ? efctTotal / efctCount : 0;
+
+  document.getElementById('e-total').textContent = fms(efctTotal);
+  document.getElementById('e-total-det').textContent = fm(efctTotal);
+  document.getElementById('e-count').textContent = efctCount;
+  document.getElementById('e-avg').textContent = fms(efctAvg);
+  document.getElementById('e-avg-det').textContent = fm(efctAvg);
+
+  // Efectivo charts
+  const efctByOwner = {};
+  efctData.forEach(r => { const p = (r[I.prop]||'').trim(); efctByOwner[p] = (efctByOwner[p]||0) + pn(r[I.efct]); });
+  const efctOwnerSorted = Object.entries(efctByOwner).sort((a,b) => b[1] - a[1]);
+  _charts.push(new Chart(document.getElementById('e-ch-owner'), {
+    type:'doughnut',
+    data:{labels:efctOwnerSorted.map(e=>e[0]),datasets:[{data:efctOwnerSorted.map(e=>Math.round(e[1])),backgroundColor:COLORS,borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#6e6e73',font:{size:11},usePointStyle:true,pointStyle:'circle'}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+fm(ctx.raw)}}}}
+  }));
+
+  const efctByCity = {};
+  efctData.forEach(r => { const c = (r[I.ciudad]||'').trim().toUpperCase(); if(c) efctByCity[c] = (efctByCity[c]||0) + pn(r[I.efct]); });
+  const efctCitySorted = Object.entries(efctByCity).sort((a,b) => b[1] - a[1]);
+  _charts.push(new Chart(document.getElementById('e-ch-city'), {
+    type:'bar',
+    data:{labels:efctCitySorted.map(e=>e[0]),datasets:[{data:efctCitySorted.map(e=>Math.round(e[1])),backgroundColor:COLORS.slice(0,efctCitySorted.length),borderRadius:4,barThickness:14}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fm(ctx.raw)}}},scales:{x:{grid:{color:'rgba(0,0,0,0.06)'},ticks:{color:'#6e6e73',callback:v=>fms(v)}},y:{grid:{display:false},ticks:{color:'#1d1d1f',font:{size:9}}}}}
+  }));
+
+  // Efectivo - Estado de Pagos
+  const eMesSel = document.getElementById('e-mes-selector');
+  monthCols.forEach((mc, i) => { const o = document.createElement('option'); o.value = i; o.textContent = mc.label; eMesSel.appendChild(o); });
+  eMesSel.value = defaultIdx;
+  let ePagosChart = null;
+
+  function renderEfctPagos(mi) {
+    const mc = monthCols[mi]; if (!mc) return;
+    document.getElementById('e-resumen-mes').textContent = mc.label;
+    let ep = 0, epen = 0, eIng = 0, ePorCobrar = 0;
+    efctData.forEach(r => {
+      const raw = (r[mc.idx]||'').trim();
+      if (raw === '' || pn(raw) === 0) { ep++; eIng += pn(r[I.efct]); } else { epen++; ePorCobrar += pn(r[I.efct]); }
+    });
+    if (ePagosChart) { ePagosChart.destroy(); _charts = _charts.filter(c => c !== ePagosChart); }
+    ePagosChart = new Chart(document.getElementById('e-ch-pagos'), {
+      type:'doughnut', data:{labels:['Pagados','Pendientes'],datasets:[{data:[ep,epen],backgroundColor:['#34c759','#ff3b30'],borderWidth:0}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#6e6e73',usePointStyle:true,pointStyle:'circle'}}}}
+    }); _charts.push(ePagosChart);
+    const epct = efctData.length > 0 ? (ep/efctData.length*100).toFixed(1) : '0';
+    document.getElementById('e-pagos-resumen').innerHTML = `
+      <div style="margin-bottom:14px"><div style="font-size:11px;color:#86868b">PAGADOS</div><div style="font-size:28px;font-weight:800;color:#248a3d">${ep}</div><div style="font-size:11px;color:#86868b">${epct}% de ${efctData.length}</div></div>
+      <div style="margin-bottom:14px"><div style="font-size:11px;color:#86868b">PENDIENTES</div><div style="font-size:28px;font-weight:800;color:#d70015">${epen}</div></div>
+      <div><div style="font-size:11px;color:#86868b">POR COBRAR</div><div style="font-size:18px;font-weight:700;color:#d70015">${fms(ePorCobrar)}</div></div>`;
+  }
+  renderEfctPagos(defaultIdx);
+  eMesSel.addEventListener('change', e => renderEfctPagos(parseInt(e.target.value)));
+
+  // Efectivo - Cartera
+  let eAlDia = 0, eDebe1 = 0, eDebe2 = 0, eDeuda = 0;
+  efctData.forEach(r => {
+    const est = (r[I.estado]||'').trim().toUpperCase();
+    if (est === 'X') eAlDia++; else if (est === 'XX') eDebe1++; else { eDebe2++; eDeuda += pn(r[I.efct]); }
+  });
+  document.getElementById('e-cartera-kpis').innerHTML = `
+    <div style="flex:1;min-width:120px;background:rgba(52,199,89,0.08);border-radius:12px;padding:12px;border-left:4px solid #34c759">
+      <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Al día</div><div style="font-size:24px;font-weight:800;color:#248a3d">${eAlDia}</div></div>
+    <div style="flex:1;min-width:120px;background:rgba(255,149,0,0.08);border-radius:12px;padding:12px;border-left:4px solid #ff9500">
+      <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Debe 1 mes</div><div style="font-size:24px;font-weight:800;color:#c93400">${eDebe1}</div></div>
+    <div style="flex:1;min-width:120px;background:rgba(255,59,48,0.08);border-radius:12px;padding:12px;border-left:4px solid #ff3b30">
+      <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Debe 2+ meses</div><div style="font-size:24px;font-weight:800;color:#d70015">${eDebe2}</div></div>
+    <div style="flex:1;min-width:120px;background:rgba(255,59,48,0.06);border-radius:12px;padding:12px;border-left:4px solid #ff3b30">
+      <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Total Deuda</div><div style="font-size:18px;font-weight:800;color:#d70015">${fms(eDeuda)}</div></div>`;
+
+  const eMorosos = efctData.filter(r => { const e = (r[I.estado]||'').trim().toUpperCase(); return e !== 'X'; });
+  if (eMorosos.length > 0) {
+    let et = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Ciudad</th><th>Efectivo</th><th>Prop</th></tr></thead><tbody>';
+    eMorosos.forEach(r => { et += `<tr><td>${r[I.cod]}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td style="font-weight:700;color:#d70015">${fm(pn(r[I.efct]))}</td><td>${r[I.prop]}</td></tr>`; });
+    et += '</tbody></table>'; document.getElementById('e-cartera-table').innerHTML = et;
+  } else { document.getElementById('e-cartera-table').innerHTML = '<div style="text-align:center;color:#248a3d;padding:20px;font-weight:600">Todos al día</div>'; }
+
+  // Efectivo - Incrementos
+  const eIncrSel = document.getElementById('e-incr-mes-selector');
+  for (let m = 1; m <= 12; m++) { const o = document.createElement('option'); o.value = m; o.textContent = MES_NOMBRES[m]; if (m === curMonthNum) o.selected = true; eIncrSel.appendChild(o); }
+  function renderEfctIncr(mesNum) {
+    const mesAbr = Object.entries(MES_MAP).find(([k,v]) => v === mesNum)?.[0]; if (!mesAbr) return;
+    const locs = efctData.filter(r => (r[mesIdx]||'').trim().toUpperCase().replace(/\s+/g,'') === mesAbr);
+    let tAct = 0, tNuevo = 0, esp = 0;
+    const rws = locs.map(r => { const ef = pn(r[I.efct]); const tipo = (r[incrIdx]||'').trim(); const inc = calcIncremento(tipo); const nv = inc.espera ? null : Math.round(ef*(1+inc.pct/100)); tAct += ef; if(nv) tNuevo += nv; else { tNuevo += ef; esp++; } return {r,ef,inc,nv}; });
+    document.getElementById('e-incr-kpis').innerHTML = `
+      <div style="flex:1;min-width:120px;background:rgba(0,122,255,0.06);border-radius:12px;padding:12px;border-left:4px solid #007aff"><div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Locales</div><div style="font-size:24px;font-weight:800;color:#007aff">${locs.length}</div></div>
+      <div style="flex:1;min-width:120px;background:rgba(52,199,89,0.06);border-radius:12px;padding:12px;border-left:4px solid #34c759"><div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Efectivo actual</div><div style="font-size:18px;font-weight:800;color:#248a3d">${fms(tAct)}</div></div>
+      <div style="flex:1;min-width:120px;background:rgba(175,82,222,0.06);border-radius:12px;padding:12px;border-left:4px solid #af52de"><div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Nuevo estimado</div><div style="font-size:18px;font-weight:800;color:#af52de">${fms(tNuevo)}</div></div>`;
+    if (locs.length === 0) { document.getElementById('e-incr-tabla').innerHTML = '<div style="text-align:center;color:#86868b;padding:20px">Sin incrementos en ' + MES_NOMBRES[mesNum] + '</div>'; return; }
+    let it = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Efectivo Actual</th><th>Tipo</th><th>Nuevo Efectivo</th><th>Prop</th></tr></thead><tbody>';
+    rws.forEach(({r,ef,inc,nv}) => { it += `<tr><td>${r[I.cod]}</td><td>${r[I.arr]}</td><td>${fm(ef)}</td><td style="font-size:11px;font-weight:600">${inc.label}</td><td>${inc.espera?'<span class="badge badge-yellow">A la espera</span>':'<span style="color:#248a3d;font-weight:600">'+fm(nv)+'</span>'}</td><td>${r[I.prop]}</td></tr>`; });
+    it += '</tbody></table>'; document.getElementById('e-incr-tabla').innerHTML = it;
+  }
+  renderEfctIncr(curMonthNum);
+  eIncrSel.addEventListener('change', e => renderEfctIncr(parseInt(e.target.value)));
+
+  // Efectivo - Directorio
+  const efctSorted = efctData.sort((a,b) => pn(a[I.cod]) - pn(b[I.cod]));
+  function renderEfctDir(filter) {
+    const f = (filter||'').toLowerCase();
+    const fil = f ? efctSorted.filter(r => (r[I.arr]||'').toLowerCase().includes(f)||(r[I.ciudad]||'').toLowerCase().includes(f)||(r[I.prop]||'').toLowerCase().includes(f)||(r[I.cod]||'').toLowerCase().includes(f)) : efctSorted;
+    document.getElementById('e-search-count').textContent = `Mostrando ${fil.length} de ${efctSorted.length}`;
+    let eh = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Ciudad</th><th>Prop</th><th>Efectivo</th></tr></thead><tbody>';
+    fil.forEach(r => { eh += `<tr><td>${r[I.cod]}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${r[I.prop]}</td><td style="font-weight:700;color:#248a3d">${fm(pn(r[I.efct]))}</td></tr>`; });
+    eh += '</tbody></table>'; document.getElementById('e-directory').innerHTML = eh;
+  }
+  renderEfctDir('');
+  document.getElementById('e-search').addEventListener('input', e => renderEfctDir(e.target.value));
+
+  // Efectivo - Resumen propietario
+  let eohtml = '<table><thead><tr><th>Propietario</th><th>Locales</th><th>Efectivo Total</th><th>% Total</th></tr></thead><tbody>';
+  efctOwnerSorted.forEach(([name, val]) => { eohtml += `<tr><td style="font-weight:600">${name}</td><td>${efctData.filter(r=>(r[I.prop]||'').trim()===name).length}</td><td>${fm(val)}</td><td>${efctTotal>0?(val/efctTotal*100).toFixed(1):'0'}%</td></tr>`; });
+  eohtml += '</tbody></table>'; document.getElementById('e-owner-table').innerHTML = eohtml;
+
+  // ===== TAB: TOTAL GENERAL =====
+  const tgTotal = totalPagar;
+  document.getElementById('tg-total').textContent = fms(tgTotal);
+  document.getElementById('tg-total-det').textContent = 'Neto + Efectivo = ' + fm(tgTotal);
+  document.getElementById('tg-neto').textContent = fms(totalNeto);
+  document.getElementById('tg-neto-det').textContent = fm(totalNeto);
+  document.getElementById('tg-efct').textContent = fms(totalEfct);
+  document.getElementById('tg-efct-det').textContent = fm(totalEfct);
+
+  // TG charts
+  const tgByOwner = {};
+  data.forEach(r => { const p = (r[I.prop]||'').trim(); if(!tgByOwner[p]) tgByOwner[p] = {neto:0,efct:0}; tgByOwner[p].neto += pn(r[I.neto]); tgByOwner[p].efct += pn(r[I.efct]); });
+  const tgOwnerSorted = Object.entries(tgByOwner).sort((a,b) => (b[1].neto+b[1].efct) - (a[1].neto+a[1].efct));
+
+  _charts.push(new Chart(document.getElementById('tg-ch-owner'), {
+    type:'doughnut',
+    data:{labels:tgOwnerSorted.map(e=>e[0]),datasets:[{data:tgOwnerSorted.map(e=>Math.round(e[1].neto+e[1].efct)),backgroundColor:COLORS,borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#6e6e73',font:{size:11},usePointStyle:true,pointStyle:'circle'}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+fm(ctx.raw)}}}}
+  }));
+
+  const tgByCity = {};
+  data.forEach(r => { const c = (r[I.ciudad]||'').trim().toUpperCase(); if(c) tgByCity[c] = (tgByCity[c]||0) + pn(r[I.pagar]); });
+  const tgCitySorted = Object.entries(tgByCity).sort((a,b) => b[1] - a[1]);
+  _charts.push(new Chart(document.getElementById('tg-ch-city'), {
+    type:'bar',
+    data:{labels:tgCitySorted.map(e=>e[0]),datasets:[{data:tgCitySorted.map(e=>Math.round(e[1])),backgroundColor:COLORS.slice(0,tgCitySorted.length),borderRadius:4,barThickness:14}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fm(ctx.raw)}}},scales:{x:{grid:{color:'rgba(0,0,0,0.06)'},ticks:{color:'#6e6e73',callback:v=>fms(v)}},y:{grid:{display:false},ticks:{color:'#1d1d1f',font:{size:9}}}}}
+  }));
+
+  // TG Compare bar
+  _charts.push(new Chart(document.getElementById('tg-ch-compare'), {
+    type:'bar',
+    data:{labels:tgOwnerSorted.map(e=>e[0]),datasets:[
+      {label:'Neto',data:tgOwnerSorted.map(e=>Math.round(e[1].neto)),backgroundColor:'#007aff',borderRadius:4},
+      {label:'Efectivo',data:tgOwnerSorted.map(e=>Math.round(e[1].efct)),backgroundColor:'#34c759',borderRadius:4}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6e6e73',usePointStyle:true,pointStyle:'circle'}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+fm(ctx.raw)}}},scales:{x:{grid:{display:false},ticks:{color:'#1d1d1f',font:{size:9}}},y:{grid:{color:'rgba(0,0,0,0.06)'},ticks:{color:'#6e6e73',callback:v=>fms(v)}}}}
+  }));
+
+  // TG - Estado de Pagos
+  const tgMesSel = document.getElementById('tg-mes-selector');
+  monthCols.forEach((mc, i) => { const o = document.createElement('option'); o.value = i; o.textContent = mc.label; tgMesSel.appendChild(o); });
+  tgMesSel.value = defaultIdx;
+  let tgPagosChart = null;
+
+  function renderTgPagos(mi) {
+    const mc = monthCols[mi]; if (!mc) return;
+    document.getElementById('tg-resumen-mes').textContent = mc.label;
+    let tp = 0, tpen = 0, tIng = 0, tPC = 0;
+    const tgActivos = data.filter(r => { const a = (r[I.arr]||'').toUpperCase().trim(); return a !== 'DISPONIBLE' && a !== ''; });
+    tgActivos.forEach(r => {
+      const raw = (r[mc.idx]||'').trim();
+      if (raw === '' || pn(raw) === 0) { tp++; tIng += pn(r[I.pagar]); } else { tpen++; tPC += pn(r[I.pagar]); }
+    });
+    if (tgPagosChart) { tgPagosChart.destroy(); _charts = _charts.filter(c => c !== tgPagosChart); }
+    tgPagosChart = new Chart(document.getElementById('tg-ch-pagos'), {
+      type:'doughnut', data:{labels:['Pagados','Pendientes'],datasets:[{data:[tp,tpen],backgroundColor:['#34c759','#ff3b30'],borderWidth:0}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#6e6e73',usePointStyle:true,pointStyle:'circle'}}}}
+    }); _charts.push(tgPagosChart);
+    const tpct = tgActivos.length > 0 ? (tp/tgActivos.length*100).toFixed(1) : '0';
+    document.getElementById('tg-pagos-resumen').innerHTML = `
+      <div style="margin-bottom:14px"><div style="font-size:11px;color:#86868b">PAGADOS</div><div style="font-size:28px;font-weight:800;color:#248a3d">${tp}</div><div style="font-size:11px;color:#86868b">${tpct}% de ${tgActivos.length}</div></div>
+      <div style="margin-bottom:14px"><div style="font-size:11px;color:#86868b">PENDIENTES</div><div style="font-size:28px;font-weight:800;color:#d70015">${tpen}</div></div>
+      <div><div style="font-size:11px;color:#86868b">POR COBRAR (TOTAL)</div><div style="font-size:18px;font-weight:700;color:#d70015">${fms(tPC)}</div></div>`;
+  }
+  renderTgPagos(defaultIdx);
+  tgMesSel.addEventListener('change', e => renderTgPagos(parseInt(e.target.value)));
+
+  // TG - Cartera
+  let tgAlDia = 0, tgDebe1 = 0, tgDebe2 = 0, tgDeuda = 0;
+  noDisp.forEach(r => {
+    const est = (r[I.estado]||'').trim().toUpperCase();
+    if (est === 'X') tgAlDia++; else if (est === 'XX') tgDebe1++; else { tgDebe2++; tgDeuda += pn(r[I.pagar]); }
+  });
+  document.getElementById('tg-cartera-kpis').innerHTML = `
+    <div style="flex:1;min-width:120px;background:rgba(52,199,89,0.08);border-radius:12px;padding:12px;border-left:4px solid #34c759">
+      <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Al día</div><div style="font-size:24px;font-weight:800;color:#248a3d">${tgAlDia}</div></div>
+    <div style="flex:1;min-width:120px;background:rgba(255,149,0,0.08);border-radius:12px;padding:12px;border-left:4px solid #ff9500">
+      <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Debe 1 mes</div><div style="font-size:24px;font-weight:800;color:#c93400">${tgDebe1}</div></div>
+    <div style="flex:1;min-width:120px;background:rgba(255,59,48,0.08);border-radius:12px;padding:12px;border-left:4px solid #ff3b30">
+      <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Debe 2+ meses</div><div style="font-size:24px;font-weight:800;color:#d70015">${tgDebe2}</div></div>
+    <div style="flex:1;min-width:120px;background:rgba(255,59,48,0.06);border-radius:12px;padding:12px;border-left:4px solid #ff3b30">
+      <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Total Deuda</div><div style="font-size:18px;font-weight:800;color:#d70015">${fms(tgDeuda)}</div></div>`;
+  const tgMorosos = noDisp.filter(r => { const e = (r[I.estado]||'').trim().toUpperCase(); return e !== 'X'; });
+  if (tgMorosos.length > 0) {
+    let tt = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Ciudad</th><th>Tot. a Pagar</th><th>Prop</th></tr></thead><tbody>';
+    tgMorosos.forEach(r => { tt += `<tr><td>${r[I.cod]}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td style="font-weight:700;color:#d70015">${fm(pn(r[I.pagar]))}</td><td>${r[I.prop]}</td></tr>`; });
+    tt += '</tbody></table>'; document.getElementById('tg-cartera-table').innerHTML = tt;
+  } else { document.getElementById('tg-cartera-table').innerHTML = '<div style="text-align:center;color:#248a3d;padding:20px;font-weight:600">Todos al día</div>'; }
+
+  // TG - Incrementos
+  const tgIncrSel = document.getElementById('tg-incr-mes-selector');
+  for (let m = 1; m <= 12; m++) { const o = document.createElement('option'); o.value = m; o.textContent = MES_NOMBRES[m]; if (m === curMonthNum) o.selected = true; tgIncrSel.appendChild(o); }
+  function renderTgIncr(mesNum) {
+    const mesAbr = Object.entries(MES_MAP).find(([k,v]) => v === mesNum)?.[0]; if (!mesAbr) return;
+    const locs = data.filter(r => { const m = (r[mesIdx]||'').trim().toUpperCase().replace(/\s+/g,''); const a = (r[I.arr]||'').toUpperCase().trim(); return m === mesAbr && a !== 'DISPONIBLE' && a !== ''; });
+    let tAct = 0, tNuevo = 0;
+    const rws = locs.map(r => { const tp = pn(r[I.pagar]); const tipo = (r[incrIdx]||'').trim(); const inc = calcIncremento(tipo); const nv = inc.espera ? null : Math.round(tp*(1+inc.pct/100)); tAct += tp; if(nv) tNuevo += nv; else tNuevo += tp; return {r,tp,inc,nv}; });
+    document.getElementById('tg-incr-kpis').innerHTML = `
+      <div style="flex:1;min-width:120px;background:rgba(0,122,255,0.06);border-radius:12px;padding:12px;border-left:4px solid #007aff"><div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Locales</div><div style="font-size:24px;font-weight:800;color:#007aff">${locs.length}</div></div>
+      <div style="flex:1;min-width:120px;background:rgba(52,199,89,0.06);border-radius:12px;padding:12px;border-left:4px solid #34c759"><div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Tot. Pagar actual</div><div style="font-size:18px;font-weight:800;color:#248a3d">${fms(tAct)}</div></div>
+      <div style="flex:1;min-width:120px;background:rgba(175,82,222,0.06);border-radius:12px;padding:12px;border-left:4px solid #af52de"><div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Nuevo estimado</div><div style="font-size:18px;font-weight:800;color:#af52de">${fms(tNuevo)}</div></div>`;
+    if (locs.length === 0) { document.getElementById('tg-incr-tabla').innerHTML = '<div style="text-align:center;color:#86868b;padding:20px">Sin incrementos en ' + MES_NOMBRES[mesNum] + '</div>'; return; }
+    let it = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Tot. Pagar Actual</th><th>Tipo</th><th>Nuevo Tot. Pagar</th><th>Prop</th></tr></thead><tbody>';
+    rws.forEach(({r,tp,inc,nv}) => { it += `<tr><td>${r[I.cod]}</td><td>${r[I.arr]}</td><td>${fm(tp)}</td><td style="font-size:11px;font-weight:600">${inc.label}</td><td>${inc.espera?'<span class="badge badge-yellow">A la espera</span>':'<span style="color:#248a3d;font-weight:600">'+fm(nv)+'</span>'}</td><td>${r[I.prop]}</td></tr>`; });
+    it += '</tbody></table>'; document.getElementById('tg-incr-tabla').innerHTML = it;
+  }
+  renderTgIncr(curMonthNum);
+  tgIncrSel.addEventListener('change', e => renderTgIncr(parseInt(e.target.value)));
+
+  // TG - Directorio
+  const tgDirData = data.filter(r => (r[I.arr]||'').trim() !== '' && (r[I.arr]||'').trim() !== 'DISPONIBLE').sort((a,b) => pn(a[I.cod]) - pn(b[I.cod]));
+  function renderTgDir(filter) {
+    const f = (filter||'').toLowerCase();
+    const fil = f ? tgDirData.filter(r => (r[I.arr]||'').toLowerCase().includes(f)||(r[I.ciudad]||'').toLowerCase().includes(f)||(r[I.prop]||'').toLowerCase().includes(f)||(r[I.cod]||'').toLowerCase().includes(f)) : tgDirData;
+    document.getElementById('tg-search-count').textContent = `Mostrando ${fil.length} de ${tgDirData.length}`;
+    let th = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Ciudad</th><th>Prop</th><th>Neto</th><th>Efectivo</th><th>Tot. Pagar</th></tr></thead><tbody>';
+    fil.forEach(r => { th += `<tr><td>${r[I.cod]}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${r[I.prop]}</td><td>${fm(pn(r[I.neto]))}</td><td style="color:#248a3d">${fm(pn(r[I.efct]))}</td><td style="font-weight:700;color:#af52de">${fm(pn(r[I.pagar]))}</td></tr>`; });
+    th += '</tbody></table>'; document.getElementById('tg-directory').innerHTML = th;
+  }
+  renderTgDir('');
+  document.getElementById('tg-search').addEventListener('input', e => renderTgDir(e.target.value));
+
+  // TG - Resumen propietario
+  let tgohtml = '<table><thead><tr><th>Propietario</th><th>Locales</th><th>Neto</th><th>Efectivo</th><th>Tot. Pagar</th><th>%</th></tr></thead><tbody>';
+  tgOwnerSorted.forEach(([name, d]) => { tgohtml += `<tr><td style="font-weight:600">${name}</td><td>${data.filter(r=>(r[I.prop]||'').trim()===name&&(r[I.arr]||'').trim()!=='DISPONIBLE').length}</td><td>${fm(d.neto)}</td><td style="color:#248a3d">${fm(d.efct)}</td><td style="font-weight:700;color:#af52de">${fm(d.neto+d.efct)}</td><td>${tgTotal>0?((d.neto+d.efct)/tgTotal*100).toFixed(1):'0'}%</td></tr>`; });
+  tgohtml += '</tbody></table>'; document.getElementById('tg-owner-table').innerHTML = tgohtml;
 
   // Show content
   document.getElementById('loading').style.display = 'none';
