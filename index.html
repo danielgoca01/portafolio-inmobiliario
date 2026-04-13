@@ -524,17 +524,6 @@ function build(h, rows) {
   }));
 
   // ===== TOP 10 =====
-  const top10 = data.filter(r=>pn(r[I.canon])>0).sort((a,b)=>pn(b[I.canon])-pn(a[I.canon])).slice(0,10);
-  let t10 = '<table><thead><tr><th>#</th><th>Arrendatario</th><th>Ciudad</th><th>Canon</th><th>%</th></tr></thead><tbody>';
-  top10.forEach((r,i) => {
-    const canon = pn(r[I.canon]);
-    const arrName = (r[I.arr]||'').trim();
-    const arrLabel = arrName.toUpperCase().includes('ALCALDIA MUNICIPAL DE CHIA') ? arrName + ' (Trimestral)' : arrName;
-    t10 += `<tr><td>${i+1}</td><td>${arrLabel}</td><td>${r[I.ciudad]}</td><td>${fm(canon)}</td><td>${(canon/totalCanon*100).toFixed(1)}%</td></tr>`;
-  });
-  t10 += '</tbody></table>';
-  document.getElementById('top10').innerHTML = t10;
-
   // ===== PAGOS POR MES (DINÁMICO) =====
   const MESES_ES = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
   const MESES_LABEL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
