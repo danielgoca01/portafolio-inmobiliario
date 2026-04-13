@@ -917,23 +917,24 @@ function build(h, rows) {
   });
 
   const deudaTotal = debe2.reduce((sum, r) => sum + pn(r[I.pagar]), 0);
+  const mesActualNombre = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][new Date().getMonth()];
   document.getElementById('cartera-kpis').innerHTML = `
-    <div style="flex:1;min-width:140px;background:rgba(52,199,89,0.08);border-radius:12px;padding:14px;border-left:4px solid #34c759">
+    <div onclick="filtrarCartera('aldia')" style="flex:1;min-width:140px;background:rgba(52,199,89,0.08);border-radius:12px;padding:14px;border-left:4px solid #34c759;cursor:pointer;transition:transform 0.15s" onmouseenter="this.style.transform='scale(1.03)'" onmouseleave="this.style.transform='scale(1)'">
       <div style="font-size:10px;color:#86868b;text-transform:uppercase;letter-spacing:1px;font-weight:600">Al día</div>
       <div style="font-size:28px;font-weight:800;color:#248a3d">${alDia.length}</div>
       <div style="font-size:11px;color:#86868b">${noDisp.length>0?(alDia.length/noDisp.length*100).toFixed(0):'0'}% del total</div>
     </div>
-    <div style="flex:1;min-width:140px;background:rgba(255,149,0,0.08);border-radius:12px;padding:14px;border-left:4px solid #ff9500">
-      <div style="font-size:10px;color:#86868b;text-transform:uppercase;letter-spacing:1px;font-weight:600">Debe 1 mes (${['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][new Date().getMonth()]})</div>
+    <div onclick="filtrarCartera('debe1')" style="flex:1;min-width:140px;background:rgba(255,149,0,0.08);border-radius:12px;padding:14px;border-left:4px solid #ff9500;cursor:pointer;transition:transform 0.15s" onmouseenter="this.style.transform='scale(1.03)'" onmouseleave="this.style.transform='scale(1)'">
+      <div style="font-size:10px;color:#86868b;text-transform:uppercase;letter-spacing:1px;font-weight:600">Debe 1 mes (${mesActualNombre})</div>
       <div style="font-size:28px;font-weight:800;color:#c93400">${debe1.length}</div>
       <div style="font-size:11px;color:#86868b">${noDisp.length>0?(debe1.length/noDisp.length*100).toFixed(0):'0'}% del total</div>
     </div>
-    <div style="flex:1;min-width:140px;background:rgba(255,59,48,0.08);border-radius:12px;padding:14px;border-left:4px solid #ff3b30">
+    <div onclick="filtrarCartera('debe2')" style="flex:1;min-width:140px;background:rgba(255,59,48,0.08);border-radius:12px;padding:14px;border-left:4px solid #ff3b30;cursor:pointer;transition:transform 0.15s" onmouseenter="this.style.transform='scale(1.03)'" onmouseleave="this.style.transform='scale(1)'">
       <div style="font-size:10px;color:#86868b;text-transform:uppercase;letter-spacing:1px;font-weight:600">Debe 2 o más meses</div>
       <div style="font-size:28px;font-weight:800;color:#d70015">${debe2.length}</div>
       <div style="font-size:11px;color:#86868b">${noDisp.length>0?(debe2.length/noDisp.length*100).toFixed(0):'0'}% del total</div>
     </div>
-    <div style="flex:1;min-width:140px;background:rgba(0,122,255,0.06);border-radius:12px;padding:14px;border-left:4px solid #007aff">
+    <div onclick="filtrarCartera('todos')" style="flex:1;min-width:140px;background:rgba(0,122,255,0.06);border-radius:12px;padding:14px;border-left:4px solid #007aff;cursor:pointer;transition:transform 0.15s" onmouseenter="this.style.transform='scale(1.03)'" onmouseleave="this.style.transform='scale(1)'">
       <div style="font-size:10px;color:#86868b;text-transform:uppercase;letter-spacing:1px;font-weight:600">Total</div>
       <div style="font-size:28px;font-weight:800;color:#007aff">${noDisp.length}</div>
       <div style="font-size:11px;color:#86868b">${debe1.length + debe2.length} deben (${noDisp.length>0?((debe1.length+debe2.length)/noDisp.length*100).toFixed(0):'0'}%)</div>
@@ -945,27 +946,40 @@ function build(h, rows) {
     </div>
   `;
 
-  // Tabla de morosos (debe 1 mes + debe 2+ meses)
-  const morosos = [...debe2, ...debe1];
-  if (morosos.length > 0) {
+  // Tabla de cartera filtrable
+  function renderCarteraTabla(lista, titulo) {
+    const el = document.getElementById('cartera-table');
+    if (lista.length === 0) {
+      el.innerHTML = '<div style="text-align:center;color:#248a3d;padding:20px;font-weight:600">' + (titulo || 'Sin resultados') + '</div>';
+      return;
+    }
     let chtml = '<table><thead><tr><th>COD</th><th>Estado</th><th>Arrendatario</th><th>Ciudad</th><th>Tot. a Pagar</th><th>Meses que Debe</th><th>Prop</th></tr></thead><tbody>';
-    morosos.forEach(r => {
+    lista.forEach(r => {
       const est = (r[estadoCol]||'').trim().toUpperCase();
-      const badge = est === 'XX'
+      const badge = est === 'X'
+        ? '<span class="badge badge-green">Al día</span>'
+        : est === 'XX'
         ? '<span class="badge badge-yellow">Debe 1 mes</span>'
         : '<span class="badge badge-red">Debe 2 o más meses</span>';
-      // Detectar qué meses debe (celdas con valor = no pagó)
       const mesesDebe = monthCols.filter(mc => {
         const raw = (r[mc.idx]||'').trim();
         return raw !== '' && pn(raw) > 0;
       }).map(mc => mc.name.substring(0,3)).join(', ');
-      chtml += `<tr><td>${r[I.cod]}</td><td>${badge}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${fm(pn(r[I.pagar]))}</td><td style="font-size:11px;color:#fcd34d">${mesesDebe || '-'}</td><td>${r[I.prop]}</td></tr>`;
+      chtml += `<tr><td>${r[I.cod]}</td><td>${badge}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${fm(pn(r[I.pagar]))}</td><td style="font-size:11px;color:#c93400">${mesesDebe || '-'}</td><td>${r[I.prop]}</td></tr>`;
     });
     chtml += '</tbody></table>';
-    document.getElementById('cartera-table').innerHTML = chtml;
-  } else {
-    document.getElementById('cartera-table').innerHTML = '<div style="text-align:center;color:#4ade80;padding:20px;font-weight:600">Todos los arrendatarios están al día</div>';
+    el.innerHTML = chtml;
   }
+
+  window.filtrarCartera = function(tipo) {
+    if (tipo === 'aldia') renderCarteraTabla(alDia, 'Todos al día');
+    else if (tipo === 'debe1') renderCarteraTabla(debe1, 'Nadie debe solo 1 mes');
+    else if (tipo === 'debe2') renderCarteraTabla(debe2, 'Nadie debe 2+ meses');
+    else renderCarteraTabla([...debe2, ...debe1, ...alDia], '');
+  };
+
+  // Mostrar morosos por defecto
+  renderCarteraTabla([...debe2, ...debe1], 'Todos los arrendatarios están al día');
 
   // ===== KPIs EFECTIVO + TOTAL GENERAL =====
   document.getElementById('k-efct').textContent = fms(totalEfct);
