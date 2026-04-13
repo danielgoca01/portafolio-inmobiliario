@@ -927,13 +927,8 @@ function build(h, rows) {
       <div style="font-size:28px;font-weight:800;color:#d70015">${debe2.length}</div>
       <div style="font-size:11px;color:#86868b">${noDisp.length>0?(debe2.length/noDisp.length*100).toFixed(0):'0'}% del total</div>
     </div>
-    <div onclick="filtrarCartera('todos')" style="flex:1;min-width:140px;background:rgba(0,122,255,0.06);border-radius:12px;padding:14px;border-left:4px solid #007aff;cursor:pointer;transition:transform 0.15s" onmouseenter="this.style.transform='scale(1.03)'" onmouseleave="this.style.transform='scale(1)'">
-      <div style="font-size:10px;color:#86868b;text-transform:uppercase;letter-spacing:1px;font-weight:600">Total</div>
-      <div style="font-size:28px;font-weight:800;color:#007aff">${noDisp.length}</div>
-      <div style="font-size:11px;color:#86868b">${debe1.length + debe2.length} deben (${noDisp.length>0?((debe1.length+debe2.length)/noDisp.length*100).toFixed(0):'0'}%)</div>
-    </div>
     <div style="flex:1;min-width:140px;background:rgba(255,59,48,0.06);border-radius:12px;padding:14px;border-left:4px solid #ff3b30">
-      <div style="font-size:10px;color:#86868b;text-transform:uppercase;letter-spacing:1px;font-weight:600">Total Deuda</div>
+      <div style="font-size:10px;color:#86868b;text-transform:uppercase;letter-spacing:1px;font-weight:600">Total Deuda (sin ${mesActualNombre})</div>
       <div style="font-size:22px;font-weight:800;color:#d70015">${fms(deudaTotal)}</div>
       <div style="font-size:11px;color:#86868b">${fm(deudaTotal)}</div>
     </div>
