@@ -12,16 +12,34 @@
   if(sessionStorage.getItem(k)==='1') return;
   const h = '32625be384ed05129315617a65f0b070e7b35a4257bdd11e0d98185c6f0cecfe';
   function sha256(s){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)).then(b=>Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join(''));}
-  function block(){document.open();document.write('<html><body style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f0efe9;color:#ff3b30;font-family:Inter,sans-serif;font-size:20px">Acceso denegado</body></html>');document.close();}
-  function ask(){
-    const p=prompt('Ingrese la clave de acceso:');
-    if(p===null){block();return;}
-    sha256(p).then(function(d){
-      if(d===h){sessionStorage.setItem(k,'1');location.reload();}
-      else{alert('Clave incorrecta');ask();}
-    });
-  }
-  ask();
+  document.addEventListener('DOMContentLoaded', function(){
+    document.body.innerHTML = `
+      <div id="login-screen" style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f0efe9;font-family:Inter,sans-serif">
+        <div style="background:#faf9f7;border-radius:20px;padding:40px;border:1px solid #ddd9d0;box-shadow:0 4px 20px rgba(0,0,0,0.08);text-align:center;width:320px;max-width:90%">
+          <div style="font-size:40px;margin-bottom:12px">🔒</div>
+          <h2 style="font-size:20px;font-weight:800;color:#1d1d1f;margin-bottom:4px">Portafolio Inmobiliario</h2>
+          <p style="font-size:12px;color:#86868b;margin-bottom:24px">Ingrese la clave de acceso</p>
+          <input id="login-pass" type="password" placeholder="Clave" style="width:100%;padding:12px 16px;border-radius:12px;border:1px solid #ddd9d0;background:#fff;color:#1d1d1f;font-size:16px;font-family:Inter;outline:none;margin-bottom:12px;box-sizing:border-box">
+          <div id="login-error" style="color:#ff3b30;font-size:12px;margin-bottom:12px;display:none">Clave incorrecta</div>
+          <button id="login-btn" style="width:100%;padding:12px;background:#007aff;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:Inter">Ingresar</button>
+        </div>
+      </div>`;
+    const inp = document.getElementById('login-pass');
+    const btn = document.getElementById('login-btn');
+    const err = document.getElementById('login-error');
+    function tryLogin(){
+      const p = inp.value;
+      if(!p){err.style.display='block';err.textContent='Ingrese la clave';return;}
+      btn.textContent='Verificando...';btn.disabled=true;
+      sha256(p).then(function(d){
+        if(d===h){sessionStorage.setItem(k,'1');location.reload();}
+        else{err.style.display='block';err.textContent='Clave incorrecta';inp.value='';btn.textContent='Ingresar';btn.disabled=false;inp.focus();}
+      });
+    }
+    btn.onclick = tryLogin;
+    inp.onkeydown = function(e){if(e.key==='Enter')tryLogin();};
+    inp.focus();
+  });
 })();
 </script>
 <style>
