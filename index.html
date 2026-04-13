@@ -128,9 +128,11 @@ a.em:hover{text-decoration:underline}
   .kpi{padding:14px}
   .header{padding:16px}
   .header h1{font-size:18px}
-  .header .head-wrap{flex-direction:column;gap:12px}
+  .header .head-wrap{flex-direction:column;gap:10px;align-items:center}
   .header .head-center{order:-1}
-  .header .head-right{flex-direction:row!important;align-items:center!important;justify-content:center;width:100%}
+  .header .head-right{flex-direction:column!important;align-items:stretch!important;width:100%;gap:6px}
+  .header .head-right select,.header .head-right button{width:100%!important}
+  .header .head-right>div{width:100%;display:flex;gap:6px}
   .chart-wrap{height:260px}
   td,th{padding:8px 6px;font-size:11px}
 }
