@@ -897,13 +897,13 @@ function build(h, rows) {
     else debe2.push(r);
   });
 
-  // Total Deuda = suma real de lo que deben en meses impagos (hasta el mes actual)
+  // Total Deuda = suma real de lo que deben en meses impagos (SIN el mes actual)
   const hoyMes = new Date().getMonth();
   const hoyAnio = new Date().getFullYear();
   const deudaTotal = debe2.reduce((sum, r) => {
     let deudaRow = 0;
     monthCols.forEach(mc => {
-      if (mc.year > hoyAnio || (mc.year === hoyAnio && mc.month > hoyMes)) return;
+      if (mc.year > hoyAnio || (mc.year === hoyAnio && mc.month >= hoyMes)) return;
       const raw = (r[mc.idx]||'').trim();
       const val = pn(raw);
       if (raw !== '' && val > 0) deudaRow += val;
