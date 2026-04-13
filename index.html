@@ -12,11 +12,12 @@
   if(sessionStorage.getItem(k)==='1') return;
   const h = '32625be384ed05129315617a65f0b070e7b35a4257bdd11e0d98185c6f0cecfe';
   function sha256(s){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)).then(b=>Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join(''));}
+  function block(){document.open();document.write('<html><body style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f0efe9;color:#ff3b30;font-family:Inter,sans-serif;font-size:20px">Acceso denegado</body></html>');document.close();}
   function ask(){
     const p=prompt('Ingrese la clave de acceso:');
-    if(p===null){document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0a0f1a;color:#ef4444;font-family:Inter,sans-serif;font-size:20px">Acceso denegado</div>';return;}
+    if(p===null){block();return;}
     sha256(p).then(function(d){
-      if(d===h){sessionStorage.setItem(k,'1');}
+      if(d===h){sessionStorage.setItem(k,'1');location.reload();}
       else{alert('Clave incorrecta');ask();}
     });
   }
