@@ -945,7 +945,11 @@ function build(h, rows) {
       const efctVal = pn(r[I.efct]);
       const mesesDetalle = [];
       let totalDeudaRow = 0;
+      const hoyM = new Date().getMonth();
+      const hoyA = new Date().getFullYear();
       monthCols.forEach(mc => {
+        // Solo meses hasta el actual (no futuros)
+        if (mc.year > hoyA || (mc.year === hoyA && mc.month > hoyM)) return;
         const raw = (r[mc.idx]||'').trim();
         const val = pn(raw);
         if (raw !== '' && val > 0) { mesesDetalle.push({ mes: mc.name.substring(0,3), val }); totalDeudaRow += val; }
