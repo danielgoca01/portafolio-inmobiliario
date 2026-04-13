@@ -147,7 +147,10 @@ a.em:hover{text-decoration:underline}
     <div class="head-right" style="flex:1;display:flex;flex-direction:column;align-items:flex-end;gap:6px">
       <select id="filtro-prop" style="padding:6px 12px;background:#faf9f7;color:#1d1d1f;border:1px solid #ddd9d0;border-radius:10px;font-size:11px;font-family:'Inter';font-weight:600;cursor:pointer;outline:none;width:160px"><option value="">👤 Todos</option></select>
       <select id="filtro-ciudad" style="padding:6px 12px;background:#faf9f7;color:#1d1d1f;border:1px solid #ddd9d0;border-radius:10px;font-size:11px;font-family:'Inter';font-weight:600;cursor:pointer;outline:none;width:160px"><option value="">📍 Todas las ciudades</option></select>
-      <button onclick="location.reload()" style="padding:6px 12px;background:#007aff;color:#fff;border:none;border-radius:10px;font-size:11px;cursor:pointer;font-family:'Inter';font-weight:600;width:160px">↻ Actualizar</button>
+      <div style="display:flex;gap:6px;width:160px">
+        <button onclick="document.getElementById('filtro-prop').value='';document.getElementById('filtro-ciudad').value='';applyFilter()" style="padding:6px 8px;background:#faf9f7;color:#86868b;border:1px solid #ddd9d0;border-radius:10px;font-size:10px;cursor:pointer;font-family:'Inter';font-weight:600;flex:1">✕ Reset</button>
+        <button onclick="location.reload()" style="padding:6px 8px;background:#007aff;color:#fff;border:none;border-radius:10px;font-size:10px;cursor:pointer;font-family:'Inter';font-weight:600;flex:1">↻ Actualizar</button>
+      </div>
       <span id="timestamp" style="font-size:9px;color:#aeaaa0;font-weight:400;letter-spacing:0.3px"></span>
     </div>
   </div>
@@ -355,21 +358,11 @@ async function load() {
     _allHeaders = all[0];
     _allRows = all.slice(1);
 
-    // Llenar dropdowns (solo la primera vez)
-    const propIdx = ci(_allHeaders, 'PROP');
-    const ciudadIdx = ci(_allHeaders, 'CIUDAD');
+    // Configurar event listeners de filtros (solo la primera vez)
     const sel = document.getElementById('filtro-prop');
     const selCiudad = document.getElementById('filtro-ciudad');
-    if (sel.options.length <= 1) {
-      const props = [...new Set(_allRows.map(r => (r[propIdx]||'').trim()).filter(p => p))].sort();
-      props.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; sel.appendChild(o); });
-      sel.addEventListener('change', () => applyFilter());
-    }
-    if (selCiudad.options.length <= 1) {
-      const ciudades = [...new Set(_allRows.map(r => (r[ciudadIdx]||'').trim().toUpperCase()).filter(c => c))].sort();
-      ciudades.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; selCiudad.appendChild(o); });
-      selCiudad.addEventListener('change', () => applyFilter());
-    }
+    if (!sel._init) { sel.addEventListener('change', () => applyFilter()); sel._init = true; }
+    if (!selCiudad._init) { selCiudad.addEventListener('change', () => applyFilter()); selCiudad._init = true; }
 
     applyFilter();
 
@@ -381,6 +374,29 @@ async function load() {
 }
 
 let _buildCount = 0;
+function updateFilterOptions() {
+  const propIdx = ci(_allHeaders, 'PROP');
+  const ciudadIdx = ci(_allHeaders, 'CIUDAD');
+  const propSel = document.getElementById('filtro-prop');
+  const ciudadSel = document.getElementById('filtro-ciudad');
+  const propVal = propSel.value;
+  const ciudadVal = ciudadSel.value;
+
+  // Filtrar filas según el otro filtro para mostrar solo opciones válidas
+  const rowsForCiudad = propVal ? _allRows.filter(r => (r[propIdx]||'').trim() === propVal) : _allRows;
+  const rowsForProp = ciudadVal ? _allRows.filter(r => (r[ciudadIdx]||'').trim().toUpperCase() === ciudadVal) : _allRows;
+
+  // Actualizar ciudades disponibles
+  const ciudadesDisp = [...new Set(rowsForCiudad.map(r => (r[ciudadIdx]||'').trim().toUpperCase()).filter(c => c))].sort();
+  ciudadSel.innerHTML = '<option value="">📍 Todas las ciudades</option>';
+  ciudadesDisp.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; if(c===ciudadVal) o.selected = true; ciudadSel.appendChild(o); });
+
+  // Actualizar propietarios disponibles
+  const propsDisp = [...new Set(rowsForProp.map(r => (r[propIdx]||'').trim()).filter(p => p))].sort();
+  propSel.innerHTML = '<option value="">👤 Todos</option>';
+  propsDisp.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; if(p===propVal) o.selected = true; propSel.appendChild(o); });
+}
+
 function applyFilter() {
   const prop = document.getElementById('filtro-prop').value;
   const ciudad = document.getElementById('filtro-ciudad').value;
@@ -389,6 +405,8 @@ function applyFilter() {
   let filtered = _allRows;
   if (prop) filtered = filtered.filter(r => (r[propIdx]||'').trim() === prop);
   if (ciudad) filtered = filtered.filter(r => (r[ciudadIdx]||'').trim().toUpperCase() === ciudad);
+
+  updateFilterOptions();
 
   // Destruir charts anteriores
   _charts.forEach(c => c.destroy());
