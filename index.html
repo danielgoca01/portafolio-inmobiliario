@@ -897,7 +897,19 @@ function build(h, rows) {
     else debe2.push(r);
   });
 
-  const deudaTotal = debe2.reduce((sum, r) => sum + pn(r[I.pagar]), 0);
+  // Total Deuda = suma real de lo que deben en meses impagos (hasta el mes actual)
+  const hoyMes = new Date().getMonth();
+  const hoyAnio = new Date().getFullYear();
+  const deudaTotal = debe2.reduce((sum, r) => {
+    let deudaRow = 0;
+    monthCols.forEach(mc => {
+      if (mc.year > hoyAnio || (mc.year === hoyAnio && mc.month > hoyMes)) return;
+      const raw = (r[mc.idx]||'').trim();
+      const val = pn(raw);
+      if (raw !== '' && val > 0) deudaRow += val;
+    });
+    return sum + deudaRow;
+  }, 0);
   const mesActualNombre = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][new Date().getMonth()];
   document.getElementById('cartera-kpis').innerHTML = `
     <div onclick="filtrarCartera('aldia')" style="flex:1;min-width:140px;background:rgba(52,199,89,0.08);border-radius:12px;padding:14px;border-left:4px solid #34c759;cursor:pointer;transition:transform 0.15s" onmouseenter="this.style.transform='scale(1.03)'" onmouseleave="this.style.transform='scale(1)'">
