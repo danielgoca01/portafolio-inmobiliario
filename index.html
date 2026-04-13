@@ -145,8 +145,9 @@ a.em:hover{text-decoration:underline}
       <h1>Portafolio Inmobiliario</h1>
     </div>
     <div class="head-right" style="flex:1;display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-      <select id="filtro-prop" style="padding:6px 12px;background:#faf9f7;color:#1d1d1f;border:1px solid #ddd9d0;border-radius:10px;font-size:11px;font-family:'Inter';font-weight:600;cursor:pointer;outline:none;width:130px"><option value="">👤 Todos</option></select>
-      <button onclick="location.reload()" style="padding:6px 12px;background:#007aff;color:#fff;border:none;border-radius:10px;font-size:11px;cursor:pointer;font-family:'Inter';font-weight:600;width:130px">↻ Actualizar</button>
+      <select id="filtro-prop" style="padding:6px 12px;background:#faf9f7;color:#1d1d1f;border:1px solid #ddd9d0;border-radius:10px;font-size:11px;font-family:'Inter';font-weight:600;cursor:pointer;outline:none;width:160px"><option value="">👤 Todos</option></select>
+      <select id="filtro-ciudad" style="padding:6px 12px;background:#faf9f7;color:#1d1d1f;border:1px solid #ddd9d0;border-radius:10px;font-size:11px;font-family:'Inter';font-weight:600;cursor:pointer;outline:none;width:160px"><option value="">📍 Todas las ciudades</option></select>
+      <button onclick="location.reload()" style="padding:6px 12px;background:#007aff;color:#fff;border:none;border-radius:10px;font-size:11px;cursor:pointer;font-family:'Inter';font-weight:600;width:160px">↻ Actualizar</button>
       <span id="timestamp" style="font-size:9px;color:#aeaaa0;font-weight:400;letter-spacing:0.3px"></span>
     </div>
   </div>
@@ -354,13 +355,20 @@ async function load() {
     _allHeaders = all[0];
     _allRows = all.slice(1);
 
-    // Llenar dropdown de propietarios (solo la primera vez)
+    // Llenar dropdowns (solo la primera vez)
     const propIdx = ci(_allHeaders, 'PROP');
-    const props = [...new Set(_allRows.map(r => (r[propIdx]||'').trim()).filter(p => p))].sort();
+    const ciudadIdx = ci(_allHeaders, 'CIUDAD');
     const sel = document.getElementById('filtro-prop');
+    const selCiudad = document.getElementById('filtro-ciudad');
     if (sel.options.length <= 1) {
+      const props = [...new Set(_allRows.map(r => (r[propIdx]||'').trim()).filter(p => p))].sort();
       props.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; sel.appendChild(o); });
       sel.addEventListener('change', () => applyFilter());
+    }
+    if (selCiudad.options.length <= 1) {
+      const ciudades = [...new Set(_allRows.map(r => (r[ciudadIdx]||'').trim().toUpperCase()).filter(c => c))].sort();
+      ciudades.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; selCiudad.appendChild(o); });
+      selCiudad.addEventListener('change', () => applyFilter());
     }
 
     applyFilter();
@@ -375,8 +383,12 @@ async function load() {
 let _buildCount = 0;
 function applyFilter() {
   const prop = document.getElementById('filtro-prop').value;
+  const ciudad = document.getElementById('filtro-ciudad').value;
   const propIdx = ci(_allHeaders, 'PROP');
-  const filtered = prop ? _allRows.filter(r => (r[propIdx]||'').trim() === prop) : _allRows;
+  const ciudadIdx = ci(_allHeaders, 'CIUDAD');
+  let filtered = _allRows;
+  if (prop) filtered = filtered.filter(r => (r[propIdx]||'').trim() === prop);
+  if (ciudad) filtered = filtered.filter(r => (r[ciudadIdx]||'').trim().toUpperCase() === ciudad);
 
   // Destruir charts anteriores
   _charts.forEach(c => c.destroy());
