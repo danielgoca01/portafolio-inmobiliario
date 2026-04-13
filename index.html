@@ -953,7 +953,7 @@ function build(h, rows) {
       el.innerHTML = '<div style="text-align:center;color:#248a3d;padding:20px;font-weight:600">' + (titulo || 'Sin resultados') + '</div>';
       return;
     }
-    let chtml = '<table><thead><tr><th>COD</th><th>Estado</th><th>Arrendatario</th><th>Ciudad</th><th>Tot. a Pagar</th><th>Deuda por Mes</th><th>Total Deuda</th><th>Prop</th></tr></thead><tbody>';
+    let chtml = '<table><thead><tr><th>COD</th><th>Estado</th><th>Arrendatario</th><th>Ciudad</th><th>Neto</th><th>Efectivo</th><th>Tot. a Pagar</th><th>Deuda por Mes</th><th>Total Deuda</th><th>Prop</th></tr></thead><tbody>';
     lista.forEach(r => {
       const est = (r[estadoCol]||'').trim().toUpperCase();
       const badge = est === 'X'
@@ -961,6 +961,7 @@ function build(h, rows) {
         : est === 'XX'
         ? '<span class="badge badge-yellow">Debe 1 mes</span>'
         : '<span class="badge badge-red">Debe 2 o más meses</span>';
+      const efctVal = pn(r[I.efct]);
       const mesesDetalle = [];
       let totalDeudaRow = 0;
       monthCols.forEach(mc => {
@@ -970,7 +971,7 @@ function build(h, rows) {
       });
       const deudaMes = mesesDetalle.length > 0 ? mesesDetalle.map(m => `<span style="font-size:11px">${m.mes}: <b>${fm(m.val)}</b></span>`).join('<br>') : '-';
       const totalDeudaCell = totalDeudaRow > 0 ? `<span style="font-weight:700;color:#d70015">${fm(totalDeudaRow)}</span>` : '-';
-      chtml += `<tr><td>${r[I.cod]}</td><td>${badge}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${fm(pn(r[I.pagar]))}</td><td style="color:#c93400">${deudaMes}</td><td>${totalDeudaCell}</td><td>${r[I.prop]}</td></tr>`;
+      chtml += `<tr><td>${r[I.cod]}</td><td>${badge}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${fm(pn(r[I.neto]))}</td><td style="color:#248a3d">${efctVal > 0 ? fm(efctVal) : '-'}</td><td style="font-weight:700;color:#af52de">${fm(pn(r[I.pagar]))}</td><td style="color:#c93400">${deudaMes}</td><td>${totalDeudaCell}</td><td>${r[I.prop]}</td></tr>`;
     });
     chtml += '</tbody></table>';
     el.innerHTML = chtml;
