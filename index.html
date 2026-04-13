@@ -813,16 +813,21 @@ function build(h, rows) {
     const kpisEl = document.getElementById('incr-kpis');
     const tablaEl = document.getElementById('incr-tabla');
 
-    let totalActual = 0, totalNuevo = 0, enEspera = 0;
+    let totalCanonAct = 0, totalCanonNuevo = 0, totalEfctAct = 0, totalEfctNuevo = 0, enEspera = 0;
     const rows = locales.map(r => {
       const canon = pn(r[I.canon]);
+      const efct = pn(r[I.efct]);
       const tipo = (r[incrIdx]||'').trim();
       const inc = calcIncremento(tipo);
       const nuevoCanon = inc.espera ? null : Math.round(canon * (1 + inc.pct / 100));
-      const diferencia = nuevoCanon ? nuevoCanon - canon : null;
-      totalActual += canon;
-      if (nuevoCanon) totalNuevo += nuevoCanon; else { totalNuevo += canon; enEspera++; }
-      return { r, canon, tipo, inc, nuevoCanon, diferencia };
+      const nuevoEfct = inc.espera ? null : Math.round(efct * (1 + inc.pct / 100));
+      const difCanon = nuevoCanon ? nuevoCanon - canon : null;
+      const difEfct = nuevoEfct && efct > 0 ? nuevoEfct - efct : null;
+      totalCanonAct += canon;
+      totalEfctAct += efct;
+      if (nuevoCanon) { totalCanonNuevo += nuevoCanon; totalEfctNuevo += (nuevoEfct || 0); }
+      else { totalCanonNuevo += canon; totalEfctNuevo += efct; enEspera++; }
+      return { r, canon, efct, tipo, inc, nuevoCanon, nuevoEfct, difCanon, difEfct };
     });
 
     kpisEl.innerHTML = `
@@ -832,13 +837,19 @@ function build(h, rows) {
         <div style="font-size:11px;color:#86868b">${MES_NOMBRES[mesNum]} 2026</div>
       </div>
       <div style="flex:1;min-width:120px;background:rgba(52,199,89,0.06);border-radius:12px;padding:12px;border-left:4px solid #34c759">
-        <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Canon actual total</div>
-        <div style="font-size:18px;font-weight:800;color:#248a3d">${fms(totalActual)}</div>
+        <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Canon actual</div>
+        <div style="font-size:18px;font-weight:800;color:#248a3d">${fms(totalCanonAct)}</div>
+        <div style="font-size:11px;color:#86868b">Nuevo: ${fms(totalCanonNuevo)}</div>
+      </div>
+      <div style="flex:1;min-width:120px;background:rgba(52,199,89,0.06);border-radius:12px;padding:12px;border-left:4px solid #34c759">
+        <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Efectivo actual</div>
+        <div style="font-size:18px;font-weight:800;color:#248a3d">${fms(totalEfctAct)}</div>
+        <div style="font-size:11px;color:#86868b">Nuevo: ${fms(totalEfctNuevo)}</div>
       </div>
       <div style="flex:1;min-width:120px;background:rgba(175,82,222,0.06);border-radius:12px;padding:12px;border-left:4px solid #af52de">
-        <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Canon nuevo estimado</div>
-        <div style="font-size:18px;font-weight:800;color:#af52de">${fms(totalNuevo)}</div>
-        <div style="font-size:11px;color:#86868b">${enEspera > 0 ? enEspera + ' en espera de negociación' : ''}</div>
+        <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Total actual → nuevo</div>
+        <div style="font-size:16px;font-weight:800;color:#af52de">${fms(totalCanonAct+totalEfctAct)} → ${fms(totalCanonNuevo+totalEfctNuevo)}</div>
+        <div style="font-size:11px;color:#86868b">${enEspera > 0 ? enEspera + ' en espera' : ''}</div>
       </div>
     `;
 
@@ -847,18 +858,17 @@ function build(h, rows) {
       return;
     }
 
-    let thtml = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Ciudad</th><th>Canon Actual</th><th>Tipo</th><th>% Incremento</th><th>Nuevo Canon</th><th>Diferencia</th><th>Prop</th></tr></thead><tbody>';
-    rows.forEach(({ r, canon, tipo, inc, nuevoCanon, diferencia }) => {
+    let thtml = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Ciudad</th><th>Canon</th><th>Nuevo Canon</th><th>Efectivo</th><th>Nuevo Efct</th><th>Tipo</th><th>%</th><th>Prop</th></tr></thead><tbody>';
+    rows.forEach(({ r, canon, efct, tipo, inc, nuevoCanon, nuevoEfct, difCanon, difEfct }) => {
       const pctCell = inc.espera
-        ? '<span style="color:#c93400;font-size:11px;font-weight:600">Negociación</span>'
+        ? '<span style="color:#c93400;font-size:11px;font-weight:600">Negoc.</span>'
         : '<span style="font-weight:600">' + inc.pct.toFixed(1) + '%</span>';
-      const nuevoCell = inc.espera
-        ? '<span class="badge badge-yellow">A la espera</span>'
+      const nuevoCanonCell = inc.espera
+        ? '<span class="badge badge-yellow">Espera</span>'
         : '<span style="color:#248a3d;font-weight:600">' + fm(nuevoCanon) + '</span>';
-      const difCell = diferencia
-        ? '<span style="color:#007aff;font-size:11px">+' + fm(diferencia) + '</span>'
-        : '-';
-      thtml += `<tr><td>${r[I.cod]}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${fm(canon)}</td><td style="font-weight:600;font-size:11px">${inc.label}</td><td>${pctCell}</td><td>${nuevoCell}</td><td>${difCell}</td><td>${r[I.prop]}</td></tr>`;
+      const efctCell = efct > 0 ? fm(efct) : '-';
+      const nuevoEfctCell = efct > 0 ? (inc.espera ? '<span class="badge badge-yellow">Espera</span>' : '<span style="color:#248a3d;font-weight:600">' + fm(nuevoEfct) + '</span>') : '-';
+      thtml += `<tr><td>${r[I.cod]}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${fm(canon)}</td><td>${nuevoCanonCell}</td><td style="color:#248a3d">${efctCell}</td><td>${nuevoEfctCell}</td><td style="font-weight:600;font-size:11px">${inc.label}</td><td>${pctCell}</td><td>${r[I.prop]}</td></tr>`;
     });
     thtml += '</tbody></table>';
     tablaEl.innerHTML = thtml;
