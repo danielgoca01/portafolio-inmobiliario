@@ -835,7 +835,7 @@ function build(h, rows) {
     const shown = filtered;
     document.getElementById('search-count').textContent = `Mostrando ${shown.length} de ${filtered.length} arrendatarios`;
 
-    let html = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Ciudad</th><th>Prop</th><th>Canon</th><th>Contacto</th></tr></thead><tbody>';
+    let html = '<table><thead><tr><th>COD</th><th>Arrendatario</th><th>Ciudad</th><th>Prop</th><th>Contacto</th></tr></thead><tbody>';
     shown.forEach(r => {
       const tel = (r[I.tel]||'').trim();
       const email = (r[I.correo]||'').trim();
@@ -844,7 +844,7 @@ function build(h, rows) {
       if (email && email !== 'X' && email !== '') contacto += (contacto?'<br>':'') + `<a class="em" href="mailto:${email.split('/')[0].trim()}">✉️ ${email.split('/')[0].trim()}</a>`;
       if (!contacto) contacto = '<span style="color:#475569">Sin datos</span>';
 
-      html += `<tr><td>${r[I.cod]}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${r[I.prop]}</td><td>${fm(pn(r[I.canon]))}</td><td>${contacto}</td></tr>`;
+      html += `<tr><td>${r[I.cod]}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${r[I.prop]}</td><td>${contacto}</td></tr>`;
     });
     html += '</tbody></table>';
     document.getElementById('directory').innerHTML = html;
