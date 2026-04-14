@@ -907,7 +907,7 @@ function build(h, rows) {
         ? '<span class="badge badge-yellow">Espera</span>'
         : '<span style="color:#007aff;font-weight:600">' + fm(nuevoCanon) + '</span>';
       const efctCell = efct > 0 ? fm(efct) : '-';
-      const nuevoEfctCell = efct > 0 ? (inc.espera ? '<span class="badge badge-yellow">Espera</span>' : '<span style="color:#34c759;font-weight:600">' + fm(nuevoEfct) + '</span>') : '-';
+      const nuevoEfctCell = efct > 0 ? (inc.espera ? '<span class="badge badge-yellow">Espera</span>' : '<span style="color:#248a3d;font-weight:600">' + fm(nuevoEfct) + '</span>') : '-';
       thtml += `<tr><td>${r[I.cod]}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td style="color:#007aff;font-weight:600">${fm(canon)}</td><td>${nuevoCanonCell}</td><td style="color:#248a3d;font-weight:600">${efctCell}</td><td>${nuevoEfctCell}</td><td style="font-weight:600;font-size:11px">${inc.label}</td><td>${pctCell}</td><td>${r[I.prop]}</td></tr>`;
     });
     thtml += '</tbody></table>';
