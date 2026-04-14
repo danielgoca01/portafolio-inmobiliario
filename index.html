@@ -172,8 +172,8 @@ a.em:hover{text-decoration:underline}
       <h1>ArriendosGC</h1>
     </div>
     <div class="head-right" style="flex:1;display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-      <select id="filtro-prop" multiple style="padding:4px 8px;background:#faf9f7;color:#1d1d1f;border:1px solid #ddd9d0;border-radius:10px;font-size:11px;font-family:'Inter';font-weight:600;cursor:pointer;outline:none;width:160px;height:auto;min-height:32px"></select>
-      <select id="filtro-ciudad" multiple style="padding:4px 8px;background:#faf9f7;color:#1d1d1f;border:1px solid #ddd9d0;border-radius:10px;font-size:11px;font-family:'Inter';font-weight:600;cursor:pointer;outline:none;width:160px;height:auto;min-height:32px"></select>
+      <select id="filtro-prop" style="padding:6px 12px;background:#faf9f7;color:#1d1d1f;border:1px solid #ddd9d0;border-radius:10px;font-size:11px;font-family:'Inter';font-weight:600;cursor:pointer;outline:none;width:160px"><option value="">👤 Todos</option></select>
+      <select id="filtro-ciudad" style="padding:6px 12px;background:#faf9f7;color:#1d1d1f;border:1px solid #ddd9d0;border-radius:10px;font-size:11px;font-family:'Inter';font-weight:600;cursor:pointer;outline:none;width:160px"><option value="">📍 Todas las ciudades</option></select>
       <div style="display:flex;gap:6px;width:160px">
         <button onclick="resetFiltros()" style="padding:6px 8px;background:#ff9500;color:#fff;border:none;border-radius:10px;font-size:10px;cursor:pointer;font-family:'Inter';font-weight:600;flex:1">↻ Reset</button>
         <button onclick="location.reload()" style="padding:6px 8px;background:#007aff;color:#fff;border:none;border-radius:10px;font-size:10px;cursor:pointer;font-family:'Inter';font-weight:600;flex:1">↻ Actualizar</button>
@@ -385,19 +385,18 @@ async function load() {
     _allHeaders = all[0];
     _allRows = all.slice(1);
 
-    // Llenar dropdowns multi-select (solo la primera vez)
+    // Llenar dropdowns (solo la primera vez)
     const propSel = document.getElementById('filtro-prop');
     const ciudadSel = document.getElementById('filtro-ciudad');
-    if (!propSel._init) {
+    if (propSel.options.length <= 1) {
       const propIdx = ci(_allHeaders, 'PROP');
       const ciudadIdx = ci(_allHeaders, 'CIUDAD');
       const props = [...new Set(_allRows.map(r => (r[propIdx]||'').trim()).filter(p => p))].sort();
       const ciudades = [...new Set(_allRows.map(r => (r[ciudadIdx]||'').trim().toUpperCase()).filter(c => c))].sort();
-      props.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = '👤 ' + p; propSel.appendChild(o); });
-      ciudades.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = '📍 ' + c; ciudadSel.appendChild(o); });
+      props.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; propSel.appendChild(o); });
+      ciudades.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; ciudadSel.appendChild(o); });
       propSel.onchange = () => applyFilter();
       ciudadSel.onchange = () => applyFilter();
-      propSel._init = true;
     }
 
     applyFilter();
@@ -412,23 +411,19 @@ async function load() {
 let _buildCount = 0;
 
 function resetFiltros() {
-  const propSel = document.getElementById('filtro-prop');
-  const ciudadSel = document.getElementById('filtro-ciudad');
-  Array.from(propSel.options).forEach(o => o.selected = false);
-  Array.from(ciudadSel.options).forEach(o => o.selected = false);
+  document.getElementById('filtro-prop').value = '';
+  document.getElementById('filtro-ciudad').value = '';
   applyFilter();
 }
 
 function applyFilter() {
-  const propSel = document.getElementById('filtro-prop');
-  const ciudadSel = document.getElementById('filtro-ciudad');
-  const selProps = Array.from(propSel.selectedOptions).map(o => o.value);
-  const selCiudades = Array.from(ciudadSel.selectedOptions).map(o => o.value);
+  const prop = document.getElementById('filtro-prop').value;
+  const ciudad = document.getElementById('filtro-ciudad').value;
   const propIdx = ci(_allHeaders, 'PROP');
   const ciudadIdx = ci(_allHeaders, 'CIUDAD');
   let filtered = _allRows;
-  if (selProps.length > 0) filtered = filtered.filter(r => selProps.includes((r[propIdx]||'').trim()));
-  if (selCiudades.length > 0) filtered = filtered.filter(r => selCiudades.includes((r[ciudadIdx]||'').trim().toUpperCase()));
+  if (prop) filtered = filtered.filter(r => (r[propIdx]||'').trim() === prop);
+  if (ciudad) filtered = filtered.filter(r => (r[ciudadIdx]||'').trim().toUpperCase() === ciudad);
 
   // Destruir charts anteriores
   _charts.forEach(c => c.destroy());
