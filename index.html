@@ -114,6 +114,13 @@ a.em:hover{text-decoration:underline}
 .section:nth-child(9){animation-delay:0.9s}
 @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
 
+/* Filter chips */
+.filtro-chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;font-family:'Inter';cursor:pointer;border:1px solid #ddd9d0;background:#faf9f7;color:#6e6e73;transition:all 0.2s;user-select:none}
+.filtro-chip:hover{border-color:#007aff;color:#007aff}
+.filtro-chip.active{background:#007aff;color:#fff;border-color:#007aff}
+.filtro-chip.active.prop{background:#af52de;border-color:#af52de}
+.filtro-chip.active.ciudad{background:#34c759;border-color:#34c759}
+
 /* Month chips */
 .mes-chip{padding:6px 12px;border-radius:20px;font-size:11px;font-weight:600;font-family:'Inter';cursor:pointer;border:1px solid #ddd9d0;background:#faf9f7;color:#6e6e73;transition:all 0.2s;user-select:none}
 .mes-chip:hover{border-color:#007aff;color:#007aff}
@@ -165,10 +172,8 @@ a.em:hover{text-decoration:underline}
       <h1>ArriendosGC</h1>
     </div>
     <div class="head-right" style="flex:1;display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-      <select id="filtro-prop" style="padding:6px 12px;background:#faf9f7;color:#1d1d1f;border:1px solid #ddd9d0;border-radius:10px;font-size:11px;font-family:'Inter';font-weight:600;cursor:pointer;outline:none;width:160px"><option value="">👤 Todos</option></select>
-      <select id="filtro-ciudad" style="padding:6px 12px;background:#faf9f7;color:#1d1d1f;border:1px solid #ddd9d0;border-radius:10px;font-size:11px;font-family:'Inter';font-weight:600;cursor:pointer;outline:none;width:160px"><option value="">📍 Todas las ciudades</option></select>
       <div style="display:flex;gap:6px;width:160px">
-        <button onclick="document.getElementById('filtro-prop').value='';document.getElementById('filtro-ciudad').value='';applyFilter()" style="padding:6px 8px;background:#ff9500;color:#fff;border:none;border-radius:10px;font-size:10px;cursor:pointer;font-family:'Inter';font-weight:600;flex:1">↻ Reset</button>
+        <button onclick="resetFiltros()" style="padding:6px 8px;background:#ff9500;color:#fff;border:none;border-radius:10px;font-size:10px;cursor:pointer;font-family:'Inter';font-weight:600;flex:1">↻ Reset</button>
         <button onclick="location.reload()" style="padding:6px 8px;background:#007aff;color:#fff;border:none;border-radius:10px;font-size:10px;cursor:pointer;font-family:'Inter';font-weight:600;flex:1">↻ Actualizar</button>
       </div>
       <span id="timestamp" style="font-size:9px;color:#aeaaa0;font-weight:400;letter-spacing:0.3px"></span>
@@ -177,6 +182,16 @@ a.em:hover{text-decoration:underline}
 </div>
 
 <div class="container">
+  <div id="filtros-bar" style="display:none;margin-bottom:16px">
+    <div style="margin-bottom:8px">
+      <span style="font-size:10px;color:#86868b;text-transform:uppercase;letter-spacing:1px;font-weight:600">👤 Propietarios</span>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px" id="filtro-prop-chips"></div>
+    </div>
+    <div>
+      <span style="font-size:10px;color:#86868b;text-transform:uppercase;letter-spacing:1px;font-weight:600">📍 Ciudades</span>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px" id="filtro-ciudad-chips"></div>
+    </div>
+  </div>
   <div id="loading" class="loading">
     <div class="spinner"></div>
     <p>Cargando datos del portafolio...</p>
@@ -378,11 +393,31 @@ async function load() {
     _allHeaders = all[0];
     _allRows = all.slice(1);
 
-    // Configurar event listeners de filtros (solo la primera vez)
-    const sel = document.getElementById('filtro-prop');
-    const selCiudad = document.getElementById('filtro-ciudad');
-    if (!sel._init) { sel.addEventListener('change', () => applyFilter()); sel._init = true; }
-    if (!selCiudad._init) { selCiudad.addEventListener('change', () => applyFilter()); selCiudad._init = true; }
+    // Crear chips de filtro (solo la primera vez)
+    if (!document.getElementById('filtro-prop-chips')._init) {
+      const propIdx = ci(_allHeaders, 'PROP');
+      const ciudadIdx = ci(_allHeaders, 'CIUDAD');
+      const props = [...new Set(_allRows.map(r => (r[propIdx]||'').trim()).filter(p => p))].sort();
+      const ciudades = [...new Set(_allRows.map(r => (r[ciudadIdx]||'').trim().toUpperCase()).filter(c => c))].sort();
+      const propContainer = document.getElementById('filtro-prop-chips');
+      const ciudadContainer = document.getElementById('filtro-ciudad-chips');
+      props.forEach(p => {
+        const chip = document.createElement('span');
+        chip.className = 'filtro-chip prop';
+        chip.textContent = p;
+        chip.onclick = () => { chip.classList.toggle('active'); applyFilter(); };
+        propContainer.appendChild(chip);
+      });
+      ciudades.forEach(c => {
+        const chip = document.createElement('span');
+        chip.className = 'filtro-chip ciudad';
+        chip.textContent = c;
+        chip.onclick = () => { chip.classList.toggle('active'); applyFilter(); };
+        ciudadContainer.appendChild(chip);
+      });
+      document.getElementById('filtro-prop-chips')._init = true;
+      document.getElementById('filtros-bar').style.display = 'block';
+    }
 
     applyFilter();
 
@@ -394,39 +429,24 @@ async function load() {
 }
 
 let _buildCount = 0;
-function updateFilterOptions() {
-  const propIdx = ci(_allHeaders, 'PROP');
-  const ciudadIdx = ci(_allHeaders, 'CIUDAD');
-  const propSel = document.getElementById('filtro-prop');
-  const ciudadSel = document.getElementById('filtro-ciudad');
-  const propVal = propSel.value;
-  const ciudadVal = ciudadSel.value;
 
-  // Filtrar filas según el otro filtro para mostrar solo opciones válidas
-  const rowsForCiudad = propVal ? _allRows.filter(r => (r[propIdx]||'').trim() === propVal) : _allRows;
-  const rowsForProp = ciudadVal ? _allRows.filter(r => (r[ciudadIdx]||'').trim().toUpperCase() === ciudadVal) : _allRows;
+function getSelectedChips(containerId) {
+  return Array.from(document.querySelectorAll('#' + containerId + ' .filtro-chip.active')).map(c => c.textContent);
+}
 
-  // Actualizar ciudades disponibles
-  const ciudadesDisp = [...new Set(rowsForCiudad.map(r => (r[ciudadIdx]||'').trim().toUpperCase()).filter(c => c))].sort();
-  ciudadSel.innerHTML = '<option value="">📍 Todas las ciudades</option>';
-  ciudadesDisp.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; if(c===ciudadVal) o.selected = true; ciudadSel.appendChild(o); });
-
-  // Actualizar propietarios disponibles
-  const propsDisp = [...new Set(rowsForProp.map(r => (r[propIdx]||'').trim()).filter(p => p))].sort();
-  propSel.innerHTML = '<option value="">👤 Todos</option>';
-  propsDisp.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; if(p===propVal) o.selected = true; propSel.appendChild(o); });
+function resetFiltros() {
+  document.querySelectorAll('.filtro-chip.active').forEach(c => c.classList.remove('active'));
+  applyFilter();
 }
 
 function applyFilter() {
-  const prop = document.getElementById('filtro-prop').value;
-  const ciudad = document.getElementById('filtro-ciudad').value;
+  const selProps = getSelectedChips('filtro-prop-chips');
+  const selCiudades = getSelectedChips('filtro-ciudad-chips');
   const propIdx = ci(_allHeaders, 'PROP');
   const ciudadIdx = ci(_allHeaders, 'CIUDAD');
   let filtered = _allRows;
-  if (prop) filtered = filtered.filter(r => (r[propIdx]||'').trim() === prop);
-  if (ciudad) filtered = filtered.filter(r => (r[ciudadIdx]||'').trim().toUpperCase() === ciudad);
-
-  updateFilterOptions();
+  if (selProps.length > 0) filtered = filtered.filter(r => selProps.includes((r[propIdx]||'').trim()));
+  if (selCiudades.length > 0) filtered = filtered.filter(r => selCiudades.includes((r[ciudadIdx]||'').trim().toUpperCase()));
 
   // Destruir charts anteriores
   _charts.forEach(c => c.destroy());
