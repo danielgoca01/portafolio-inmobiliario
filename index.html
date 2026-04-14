@@ -876,23 +876,20 @@ function build(h, rows) {
     kpisEl.innerHTML = `
       <div style="flex:1;min-width:120px;background:rgba(0,122,255,0.06);border-radius:12px;padding:12px;border-left:4px solid #007aff">
         <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Locales con incremento</div>
-        <div style="font-size:24px;font-weight:800;color:#007aff">${locales.length}</div>
-        <div style="font-size:11px;color:#86868b">${MES_NOMBRES[mesNum]} 2026</div>
+        <div style="font-size:16px;font-weight:800;color:#007aff">${locales.length} locales</div>
+        <div style="font-size:11px;color:#86868b">${MES_NOMBRES[mesNum]} 2026${enEspera > 0 ? ' · ' + enEspera + ' en espera' : ''}</div>
       </div>
-      <div style="flex:1;min-width:120px;background:rgba(52,199,89,0.06);border-radius:12px;padding:12px;border-left:4px solid #34c759">
-        <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Canon actual</div>
-        <div style="font-size:18px;font-weight:800;color:#248a3d">${fms(totalCanonAct)}</div>
-        <div style="font-size:11px;color:#86868b">Nuevo: ${fms(totalCanonNuevo)}</div>
+      <div style="flex:1;min-width:120px;background:rgba(175,82,222,0.06);border-radius:12px;padding:12px;border-left:4px solid #af52de">
+        <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Canon actual → nuevo</div>
+        <div style="font-size:16px;font-weight:800;color:#af52de">${fms(totalCanonAct)} → ${fms(totalCanonNuevo)}</div>
       </div>
-      <div style="flex:1;min-width:120px;background:rgba(52,199,89,0.06);border-radius:12px;padding:12px;border-left:4px solid #34c759">
-        <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Efectivo actual</div>
-        <div style="font-size:18px;font-weight:800;color:#248a3d">${fms(totalEfctAct)}</div>
-        <div style="font-size:11px;color:#86868b">Nuevo: ${fms(totalEfctNuevo)}</div>
+      <div style="flex:1;min-width:120px;background:rgba(175,82,222,0.06);border-radius:12px;padding:12px;border-left:4px solid #af52de">
+        <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Efectivo actual → nuevo</div>
+        <div style="font-size:16px;font-weight:800;color:#af52de">${fms(totalEfctAct)} → ${fms(totalEfctNuevo)}</div>
       </div>
       <div style="flex:1;min-width:120px;background:rgba(175,82,222,0.06);border-radius:12px;padding:12px;border-left:4px solid #af52de">
         <div style="font-size:10px;color:#86868b;text-transform:uppercase;font-weight:600">Total actual → nuevo</div>
         <div style="font-size:16px;font-weight:800;color:#af52de">${fms(totalCanonAct+totalEfctAct)} → ${fms(totalCanonNuevo+totalEfctNuevo)}</div>
-        <div style="font-size:11px;color:#86868b">${enEspera > 0 ? enEspera + ' en espera' : ''}</div>
       </div>
     `;
 
