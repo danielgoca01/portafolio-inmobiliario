@@ -462,6 +462,47 @@ function resetFiltros() {
   applyFilter();
 }
 
+function updateDDOptions() {
+  const propIdx = ci(_allHeaders, 'PROP');
+  const ciudadIdx = ci(_allHeaders, 'CIUDAD');
+  const selProps = getSelectedDD('dd-prop-menu');
+  const selCiudades = getSelectedDD('dd-ciudad-menu');
+
+  // Filtrar filas según el otro filtro
+  const rowsForCiudad = selProps.length > 0 ? _allRows.filter(r => selProps.includes((r[propIdx]||'').trim())) : _allRows;
+  const rowsForProp = selCiudades.length > 0 ? _allRows.filter(r => selCiudades.includes((r[ciudadIdx]||'').trim().toUpperCase())) : _allRows;
+
+  // Ciudades disponibles según propietarios seleccionados
+  const ciudadesDisp = [...new Set(rowsForCiudad.map(r => (r[ciudadIdx]||'').trim().toUpperCase()).filter(c => c))].sort();
+  const menuCiudad = document.getElementById('dd-ciudad-menu');
+  menuCiudad.innerHTML = '';
+  ciudadesDisp.forEach(c => {
+    const label = document.createElement('label');
+    const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.value = c;
+    if (selCiudades.includes(c)) cb.checked = true;
+    cb.onchange = () => { updateDDLabel('dd-ciudad-menu', '📍'); applyFilter(); };
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(c));
+    menuCiudad.appendChild(label);
+  });
+
+  // Propietarios disponibles según ciudades seleccionadas
+  const propsDisp = [...new Set(rowsForProp.map(r => (r[propIdx]||'').trim()).filter(p => p))].sort();
+  const menuProp = document.getElementById('dd-prop-menu');
+  menuProp.innerHTML = '';
+  propsDisp.forEach(p => {
+    const label = document.createElement('label');
+    const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.value = p;
+    if (selProps.includes(p)) cb.checked = true;
+    cb.onchange = () => { updateDDLabel('dd-prop-menu', '👤'); applyFilter(); };
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(p));
+    menuProp.appendChild(label);
+  });
+}
+
 function applyFilter() {
   const selProps = getSelectedDD('dd-prop-menu');
   const selCiudades = getSelectedDD('dd-ciudad-menu');
@@ -470,6 +511,8 @@ function applyFilter() {
   let filtered = _allRows;
   if (selProps.length > 0) filtered = filtered.filter(r => selProps.includes((r[propIdx]||'').trim()));
   if (selCiudades.length > 0) filtered = filtered.filter(r => selCiudades.includes((r[ciudadIdx]||'').trim().toUpperCase()));
+
+  updateDDOptions();
 
   // Destruir charts anteriores
   _charts.forEach(c => c.destroy());
