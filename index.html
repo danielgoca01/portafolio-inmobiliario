@@ -981,7 +981,7 @@ function build(h, rows) {
   const ownerFullSorted = Object.entries(ownerFull).sort((a,b) => b[1].pagar - a[1].pagar);
   let ohtml = '<table><thead><tr><th>Propietario</th><th>Locales</th><th>Canon (sin IVA)</th><th>Neto</th><th>Efectivo</th><th>Tot. Pagar</th><th>%</th></tr></thead><tbody>';
   ownerFullSorted.forEach(([name, d]) => {
-    ohtml += `<tr><td style="font-weight:600">${name}</td><td>${d.n}</td><td>${fm(d.canon)}</td><td>${fm(d.neto)}</td><td style="color:#248a3d">${fm(d.efct)}</td><td style="font-weight:700;color:#af52de">${fm(d.pagar)}</td><td>${totalPagar>0?(d.pagar/totalPagar*100).toFixed(1):'0'}%</td></tr>`;
+    ohtml += `<tr><td style="font-weight:600">${name}</td><td>${d.n}</td><td style="color:#248a3d;font-weight:600">${fm(d.canon)}</td><td style="color:#248a3d">${fm(d.neto)}</td><td style="color:#007aff;font-weight:600">${fm(d.efct)}</td><td style="font-weight:700;color:#af52de">${fm(d.pagar)}</td><td>${totalPagar>0?(d.pagar/totalPagar*100).toFixed(1):'0'}%</td></tr>`;
   });
   ohtml += '</tbody></table>';
   document.getElementById('owner-table').innerHTML = ohtml;
