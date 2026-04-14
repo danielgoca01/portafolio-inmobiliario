@@ -1063,7 +1063,7 @@ function build(h, rows) {
       });
       const deudaMes = mesesDetalle.length > 1 ? mesesDetalle.map(m => `<span style="font-size:11px">${m.mes}: <b>${fm(m.val)}</b></span>`).join('<br>') : '-';
       const totalDeudaCell = totalDeudaRow > 0 ? `<span style="font-weight:700;color:#d70015">${fm(totalDeudaRow)}</span>` : '-';
-      chtml += `<tr><td>${r[I.cod]}</td><td>${badge}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td>${fm(pn(r[I.neto]))}</td><td style="color:#248a3d">${efctVal > 0 ? fm(efctVal) : '-'}</td><td style="font-weight:700;color:#af52de">${fm(pn(r[I.pagar]))}</td><td style="color:#c93400">${deudaMes}</td><td>${totalDeudaCell}</td><td>${r[I.prop]}</td></tr>`;
+      chtml += `<tr><td>${r[I.cod]}</td><td>${badge}</td><td>${r[I.arr]}</td><td>${r[I.ciudad]}</td><td style="color:#248a3d;font-weight:600">${fm(pn(r[I.neto]))}</td><td style="color:#007aff;font-weight:600">${efctVal > 0 ? fm(efctVal) : '-'}</td><td style="font-weight:700;color:#af52de">${fm(pn(r[I.pagar]))}</td><td style="color:#c93400">${deudaMes}</td><td>${totalDeudaCell}</td><td>${r[I.prop]}</td></tr>`;
     });
     chtml += '</tbody></table>';
     el.innerHTML = chtml;
