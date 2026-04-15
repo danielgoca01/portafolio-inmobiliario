@@ -761,7 +761,7 @@ function build(h, rows) {
     const d = window._resumenData;
     const mesNombre = mc.label;
     document.getElementById('resumen-ejecutivo').innerHTML = `
-      <span style="font-weight:700">${d.total} locales</span> en total · <span style="font-weight:700;color:#248a3d">${d.activos} arrendados</span> (${d.occ.toFixed(0)}% ocupación) · <span style="font-weight:700;color:#ff9500">${d.disponibles} disponibles</span><br>
+      <span style="font-weight:700;color:#248a3d">${d.activos} arrendados</span> (${d.occ.toFixed(0)}% ocupación) · <span style="font-weight:700;color:#ff9500">${d.disponibles} disponibles</span><br>
       Este mes (<b>${mc.name}</b>): han pagado <span style="font-weight:700;color:#248a3d">${pagados} de ${activos.length}</span> · ingresó <span style="font-weight:700;color:#248a3d">${fms(ingresadoBancos)}</span> a bancos · falta por cobrar <span style="font-weight:700;color:#d70015">${fms(porCobrar)}</span>
     `;
   }
