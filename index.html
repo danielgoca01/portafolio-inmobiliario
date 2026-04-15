@@ -209,6 +209,9 @@ a.em:hover{text-decoration:underline}
   </div>
   <div id="content" style="display:none">
 
+    <!-- Resumen Ejecutivo -->
+    <div id="resumen-ejecutivo" style="background:#faf9f7;border-radius:14px;padding:16px 20px;margin-bottom:16px;border:1px solid #ddd9d0;font-size:14px;color:#1d1d1f;line-height:1.8;font-family:'Inter'"></div>
+
     <!-- KPIs -->
     <div class="section">
       <div class="kpis">
@@ -598,6 +601,9 @@ function build(h, rows) {
   document.getElementById('k-occ').style.color = occColor;
   document.getElementById('occ-det').textContent = activos + ' de ' + data.length + ' arrendados';
 
+  // Resumen Ejecutivo (se actualiza después de calcular pagos, por ahora placeholder)
+  window._resumenData = { total: data.length, activos, disponibles, occ, totalNeto, totalEfct, totalPagar };
+
   // Group by owner
   const byOwner = {};
   data.forEach(r => {
@@ -749,6 +755,14 @@ function build(h, rows) {
       <div style="margin-bottom:16px"><div style="font-size:11px;color:#86868b">PENDIENTES</div><div style="font-size:28px;font-weight:800;color:#d70015">${pendientes}</div></div>
       <div style="margin-bottom:16px"><div style="font-size:11px;color:#86868b">INGRESADO A BANCOS</div><div style="font-size:18px;font-weight:700;color:#248a3d">${fms(ingresadoBancos)}</div><div style="font-size:11px;color:#86868b">${mc.label} = ${fm(ingresadoBancos)}</div></div>
       <div><div style="font-size:11px;color:#86868b">POR COBRAR</div><div style="font-size:18px;font-weight:700;color:#d70015">${fms(porCobrar)}</div><div style="font-size:11px;color:#86868b">${fm(porCobrar)}</div></div>
+    `;
+
+    // Resumen Ejecutivo
+    const d = window._resumenData;
+    const mesNombre = mc.label;
+    document.getElementById('resumen-ejecutivo').innerHTML = `
+      <span style="font-weight:700">${d.total} locales</span> en total · <span style="font-weight:700;color:#248a3d">${d.activos} arrendados</span> (${d.occ.toFixed(0)}% ocupación) · <span style="font-weight:700;color:#ff9500">${d.disponibles} disponibles</span><br>
+      En <b>${mesNombre}</b>: han pagado <span style="font-weight:700;color:#248a3d">${pagados} de ${activos.length}</span> · ingresó <span style="font-weight:700;color:#248a3d">${fms(ingresadoBancos)}</span> a bancos · falta por cobrar <span style="font-weight:700;color:#d70015">${fms(porCobrar)}</span>
     `;
   }
 
